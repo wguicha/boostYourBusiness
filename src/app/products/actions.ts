@@ -47,3 +47,42 @@ export async function addProduct(formData: FormData) {
 
   revalidatePath('/products');
 }
+
+export async function deleteProduct(productId: string) {
+  await prisma.product.delete({
+    where: { id: productId },
+  });
+
+  revalidatePath('/products');
+}
+
+export async function updateProduct(productId: string, formData: FormData) {
+  const name = formData.get('name') as string;
+  const description = formData.get('description') as string;
+  const price = parseFloat(formData.get('price') as string);
+  const quantity = parseInt(formData.get('quantity') as string);
+  const image = formData.get('image') as File;
+
+  let imageUrl: string | undefined = undefined;
+
+  if (image && image.size > 0) {
+    imageUrl = await uploadImage(image);
+  }
+
+  if (!name || isNaN(price) || isNaN(quantity)) {
+    throw new Error('Invalid data');
+  }
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: {
+      name,
+      description,
+      price,
+      quantity,
+      imageUrl: imageUrl || undefined, // Use new image URL or keep existing if not provided
+    },
+  });
+
+  revalidatePath('/products');
+}

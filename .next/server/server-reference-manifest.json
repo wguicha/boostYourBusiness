@@ -1,17 +1,43 @@
 {
   "node": {
-    "705788b9922185f4082d86dbecdd82a0f0c8db063f": {
+    "400d2658aede34664ed30c0c8ffd9799963be5c7de": {
       "workers": {
-        "app/pos/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cpos%5C%5Cactions.ts%22%2C%5B%7B%22id%22%3A%22705788b9922185f4082d86dbecdd82a0f0c8db063f%22%2C%22exportedName%22%3A%22recordSale%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cpos%5C%5Cactions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": true
+        "app/products/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%2C%5B%7B%22id%22%3A%22400d2658aede34664ed30c0c8ffd9799963be5c7de%22%2C%22exportedName%22%3A%22addProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%2240d58eea51f6861d0f616d6cbc8471d77dd926bc7d%22%2C%22exportedName%22%3A%22deleteProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%22606d8464d42bc46a41dfb292b1fceb5bdb10c90f15%22%2C%22exportedName%22%3A%22updateProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
         }
       },
       "layer": {
-        "app/pos/page": "action-browser"
+        "app/products/page": "action-browser"
       },
-      "filename": "../C:\\Users\\willi\\projects\\boost\\boost-your-business\\src\\app\\pos\\actions.ts",
-      "exportedName": "recordSale"
+      "filename": "../C:\\Users\\willi\\projects\\boost\\boost-your-business\\src\\app\\products\\actions.ts",
+      "exportedName": "addProduct"
+    },
+    "40d58eea51f6861d0f616d6cbc8471d77dd926bc7d": {
+      "workers": {
+        "app/products/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%2C%5B%7B%22id%22%3A%22400d2658aede34664ed30c0c8ffd9799963be5c7de%22%2C%22exportedName%22%3A%22addProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%2240d58eea51f6861d0f616d6cbc8471d77dd926bc7d%22%2C%22exportedName%22%3A%22deleteProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%22606d8464d42bc46a41dfb292b1fceb5bdb10c90f15%22%2C%22exportedName%22%3A%22updateProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/products/page": "action-browser"
+      },
+      "filename": "../C:\\Users\\willi\\projects\\boost\\boost-your-business\\src\\app\\products\\actions.ts",
+      "exportedName": "deleteProduct"
+    },
+    "606d8464d42bc46a41dfb292b1fceb5bdb10c90f15": {
+      "workers": {
+        "app/products/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%2C%5B%7B%22id%22%3A%22400d2658aede34664ed30c0c8ffd9799963be5c7de%22%2C%22exportedName%22%3A%22addProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%2240d58eea51f6861d0f616d6cbc8471d77dd926bc7d%22%2C%22exportedName%22%3A%22deleteProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%2C%7B%22id%22%3A%22606d8464d42bc46a41dfb292b1fceb5bdb10c90f15%22%2C%22exportedName%22%3A%22updateProduct%22%2C%22filename%22%3A%22..%2FC%3A%5C%5CUsers%5C%5Cwilli%5C%5Cprojects%5C%5Cboost%5C%5Cboost-your-business%5C%5Csrc%5C%5Capp%5C%5Cproducts%5C%5Cactions.ts%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/products/page": "action-browser"
+      },
+      "filename": "../C:\\Users\\willi\\projects\\boost\\boost-your-business\\src\\app\\products\\actions.ts",
+      "exportedName": "updateProduct"
     }
   },
   "edge": {},
