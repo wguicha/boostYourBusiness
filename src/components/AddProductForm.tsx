@@ -19,7 +19,7 @@ function SubmitButton() {
 
 export default function AddProductForm() {
   return (
-    <form action={addProduct} encType="multipart/form-data" className="p-4 border rounded-lg shadow-md mb-6">
+    <form action={addProduct} className="p-4 border rounded-lg shadow-md mb-6">
       <h2 className="text-xl font-semibold mb-4">Agregar Nuevo Producto</h2>
       <div className="mb-4">
         <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Nombre del Producto</label>

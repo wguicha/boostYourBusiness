@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import EditProductForm from "@/components/EditProductForm";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 interface EditProductPageProps {
   params: {
@@ -8,6 +11,12 @@ interface EditProductPageProps {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/auth/signin");
+  }
+
   const resolvedParams = await params; // Await params
   const { productId } = resolvedParams;
   const product = await prisma.product.findUnique({

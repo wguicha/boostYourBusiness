@@ -1,7 +1,18 @@
+import prisma from "@/lib/prisma";
+import AddProductForm from "@/components/AddProductForm";
 import ProductList from "@/components/ProductList";
-import { signOut } from 'next-auth/react';
+import SignOutButton from "@/components/SignOutButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export default async function ProductsPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/auth/signin");
+  }
+
   const products = await prisma.product.findMany();
 
   // Convert Decimal to string for client component serialization
@@ -14,12 +25,7 @@ export default async function ProductsPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-        <button 
-          onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-          className="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-3 rounded"
-        >
-          Cerrar Sesión
-        </button>
+        <SignOutButton />
       </div>
       
       <AddProductForm />

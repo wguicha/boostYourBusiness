@@ -1,11 +1,10 @@
 'use client';
 
-'use client';
-
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { recordSale } from '@/app/pos/actions';
+import { recordSale, recordSingleSale } from '@/app/pos/actions';
 import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation'; // Added import for useRouter
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
@@ -41,6 +40,8 @@ export default function POSClient({ products }: POSClientProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('Efectivo');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const router = useRouter(); // Initialize useRouter
+  const [isSingleSalePending, setIsSingleSalePending] = useState(false); // New state for single sale button
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -100,8 +101,7 @@ export default function POSClient({ products }: POSClientProps) {
           {products.map((product) => (
             <div 
               key={product.id} 
-              className="border p-4 rounded-lg shadow cursor-pointer hover:bg-gray-100"
-              onClick={() => addToCart(product)}
+              className="border p-4 rounded-lg shadow"
             >
               <div className="w-full h-32 relative mb-2">
                 <Image
@@ -113,6 +113,41 @@ export default function POSClient({ products }: POSClientProps) {
               </div>
               <h3 className="font-bold text-md truncate">{product.name}</h3>
               <p className="text-gray-600 text-sm">${parseFloat(product.price).toFixed(2)}</p>
+              <p className="text-gray-500 text-xs">Inventario: {product.quantity}</p>
+              <div className="mt-2 flex flex-col space-y-2">
+                <button 
+                  onClick={() => addToCart(product)}
+                  disabled={product.quantity === 0}
+                  className="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Agregar al Carrito
+                </button>
+                <button 
+                  onClick={async () => {
+                    setIsSingleSalePending(true); // Set pending state
+                    setMessage(null);
+                    try {
+                      await recordSingleSale(product.id, paymentMethod);
+                      setMessage({ type: 'success', text: `Venta directa de ${product.name} registrada!` });
+                    } catch (error: any) {
+                      console.error('Error al registrar venta directa:', error);
+                      setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
+                    } finally {
+                      setIsSingleSalePending(false); // Reset pending state
+                    }
+                  }}
+                  disabled={product.quantity === 0 || isSingleSalePending} // Disable button
+                  className="bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Registrar Venta
+                </button>
+                <button 
+                  onClick={() => router.push(`/products/${product.id}/edit`)}
+                  className="bg-gray-500 hover:bg-gray-700 text-white text-sm py-1 px-2 rounded"
+                >
+                  Editar Producto
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -180,4 +215,3 @@ export default function POSClient({ products }: POSClientProps) {
     </div>
   );
 }
-

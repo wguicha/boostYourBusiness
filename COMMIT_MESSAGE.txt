@@ -1,1 +1,1 @@
-Initial commit
+feat: Implement user authentication with NextAuth.js
