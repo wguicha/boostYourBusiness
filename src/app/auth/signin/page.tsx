@@ -23,7 +23,7 @@ export default function SignInPage() {
     if (result?.error) {
       setError(result.error);
     } else {
-      router.push('/products'); // Redirect to products page on successful login
+      router.push('/pos'); // Redirect to POS page on successful login
     }
   };
 

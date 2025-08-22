@@ -1,12 +1,12 @@
 import prisma from "@/lib/prisma";
 import AddProductForm from "@/components/AddProductForm";
 import ProductList from "@/components/ProductList";
-import SignOutButton from "@/components/SignOutButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 
 export default async function ProductsPage() {
+  console.log('Rendering Products page'); // Added console.log
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -25,7 +25,6 @@ export default async function ProductsPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-        <SignOutButton />
       </div>
       
       <AddProductForm />

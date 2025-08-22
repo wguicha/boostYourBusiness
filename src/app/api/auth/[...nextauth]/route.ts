@@ -22,6 +22,8 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
+        console.log('User from DB in authorize:', user); // Add this line for debugging
+
         if (!user || !user.password) { // Assuming you add a 'password' field to your User model
           return null;
         }
@@ -36,6 +38,7 @@ export const authOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          businessName: user.businessName, // Add businessName here
         };
       },
     }),
@@ -43,19 +46,20 @@ export const authOptions = {
   session: {
     strategy: "jwt",
   },
-  pages: {
-    signIn: "/auth/signin",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.businessName = user.businessName; // Add businessName to token
       }
       return token;
     },
     async session({ session, token }) {
       if (token.id) {
         session.user.id = token.id;
+      }
+      if (token.businessName) {
+        session.user.businessName = token.businessName; // Add businessName to session
       }
       return session;
     },

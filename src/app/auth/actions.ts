@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -26,4 +27,19 @@ export async function registerUser(formData: FormData) {
   });
 
   return { success: true };
+}
+
+export async function updateUserProfile(userId: string, formData: FormData) {
+  const name = formData.get('name') as string;
+  const businessName = formData.get('businessName') as string;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name: name || null,
+      businessName: businessName || null,
+    },
+  });
+
+  revalidatePath('/profile');
 }

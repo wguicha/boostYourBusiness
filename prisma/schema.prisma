@@ -80,6 +80,7 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  businessName  String? // Added for user's business name
   email         String?   @unique
   password      String? // Added for CredentialsProvider
   emailVerified DateTime?

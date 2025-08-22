@@ -1,1 +1,1 @@
-feat: Implement user authentication with NextAuth.js
+feat: POS enhancements (per-product actions, stock display, disable out-of-stock)

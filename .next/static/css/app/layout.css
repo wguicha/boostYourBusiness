@@ -75,9 +75,6 @@
 .relative {
   position: relative;
 }
-.z-10 {
-  z-index: 10;
-}
 .container {
   width: 100%;
 }
