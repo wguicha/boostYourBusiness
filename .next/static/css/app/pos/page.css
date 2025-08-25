@@ -1,0 +1,202 @@
+/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/pos/POSClient.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************/
+.POSClient_container__WmRHh {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.POSClient_productGrid__GyLo1 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.POSClient_productCard__n6R8X {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.POSClient_cartSummary__NG8QV {
+  background-color: #f0f0f0;
+  padding: 16px;
+  border-left: 1px solid #ccc;
+}
+
+.POSClient_submitButton__uLrmr {
+  width: 100%;
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.POSClient_productGridContainer__Ktn0b {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.POSClient_sectionTitle__nVRsK {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.POSClient_imageContainer__whejR {
+  width: 100%;
+  height: 128px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.POSClient_productImage__fx8_O {
+  border-radius: 4px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.POSClient_productName___qN9d {
+  font-weight: bold;
+  font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.POSClient_productPrice__lAWSe {
+  color: #666;
+  font-size: 14px;
+}
+
+.POSClient_productQuantity__f8J8N {
+  color: #666;
+  font-size: 12px;
+}
+
+.POSClient_productActions__4umJV {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.POSClient_addToCartButton__QolJE {
+  background-color: #007bff;
+  color: white;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.POSClient_recordSaleButton__VJ8BJ {
+  background-color: #28a745;
+  color: white;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.POSClient_editProductButton__5nYdo {
+  background-color: #6c757d;
+  color: white;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.POSClient_successMessage__GsYPp {
+  padding: 8px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.POSClient_errorMessage__9kgFb {
+  padding: 8px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.POSClient_emptyCartMessage__4nMZO {
+  color: #6c757d;
+}
+
+.POSClient_cartItemsContainer__1pdbc {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.POSClient_cartItem__pBW9X {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.POSClient_cartItemControls___PNCJ {
+  display: flex;
+  align-items: center;
+}
+
+.POSClient_quantityInput__fhtyL {
+  width: 64px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.POSClient_removeButton__MxZD5 {
+  color: #dc3545;
+  cursor: pointer;
+}
+
+.POSClient_paymentTotalContainer__g0z2H {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ccc;
+}
+
+.POSClient_paymentMethodContainer__CNFFn {
+  margin-bottom: 16px;
+}
+
+.POSClient_paymentMethodLabel__yuRPf {
+  display: block;
+  color: #495057;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.POSClient_paymentMethodSelect__bFWP1 {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #495057;
+}
+
+.POSClient_totalAmountContainer__bwVv_ {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 16px;
+}

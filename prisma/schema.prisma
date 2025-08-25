@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +10,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// NEW: Role definition for users within a business
+enum Role {
+  OWNER
+  EMPLOYEE
+}
+
+// NEW: Business model
+model Business {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to users (many-to-many)
+  users     BusinessUser[]
+  // Relation to products (one-to-many)
+  products  Product[]
+  // Relation to sales (one-to-many)
+  sales     Sale[]
+}
+
+// NEW: Join table for the many-to-many relationship between Business and User
+model BusinessUser {
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @default(OWNER)
+
+  assignedAt DateTime @default(now())
+  assignedBy String? // Optional: to track who assigned the user
+
+  @@id([businessId, userId])
+}
+
 model Product {
   id          String   @id @default(cuid())
   name        String
@@ -20,33 +52,40 @@ model Product {
   price       Decimal
   quantity    Int
   imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  SaleItem    SaleItem[]
 
-  SaleItem SaleItem[]
+  // ADDED: Relation to a Business
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model Sale {
-  id            String     @id @default(cuid())
+  id            String   @id @default(cuid())
   totalAmount   Decimal
   paymentMethod String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   items         SaleItem[]
+
+  // ADDED: Relation to a Business
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model SaleItem {
-  id        String   @id @default(cuid())
-  quantity  Int
+  id          String  @id @default(cuid())
+  quantity    Int
   priceAtSale Decimal
 
   saleId    String
-  sale      Sale     @relation(fields: [saleId], references: [id])
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict) // Use Restrict to prevent product deletion if it's in a sale
 }
 
 // NextAuth.js models
@@ -64,7 +103,7 @@ model Account {
   id_token          String?
   session_state     String?
 
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -80,13 +119,18 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  businessName  String? // Added for user's business name
+  // REMOVED: businessName is no longer needed here
+  // businessName  String?
   email         String?   @unique
-  password      String? // Added for CredentialsProvider
+  password      String?
   emailVerified DateTime?
   image         String?
-  accounts      Account[]
-  sessions      Session[]
+
+  accounts Account[]
+  sessions Session[]
+
+  // ADDED: Relation to businesses (many-to-many)
+  businesses BusinessUser[]
 }
 
 model VerificationToken {

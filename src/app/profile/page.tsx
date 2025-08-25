@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import UserProfileForm from "@/components/UserProfileForm";
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(auth);
 
   if (!session || !session.user?.email) {
     redirect("/auth/signin");

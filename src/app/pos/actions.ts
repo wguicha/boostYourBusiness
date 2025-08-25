@@ -11,9 +11,12 @@ interface CartItem {
   quantity: number; // Quantity in cart
 }
 
-export async function recordSale(cartItems: CartItem[], totalAmount: number, paymentMethod: string) {
+export async function recordSale(cartItems: CartItem[], totalAmount: number, paymentMethod: string, businessId: string) {
   if (cartItems.length === 0) {
     throw new Error('El carrito está vacío.');
+  }
+  if (!businessId) {
+    throw new Error('Business ID no proporcionado.');
   }
 
   // Use a transaction to ensure atomicity
@@ -23,6 +26,7 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
       data: {
         totalAmount: new Decimal(totalAmount),
         paymentMethod,
+        businessId: businessId, // Associate sale with the business
         items: {
           create: cartItems.map(item => ({
             productId: item.id,
@@ -35,8 +39,22 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
 
     // 2. Update product quantities
     for (const item of cartItems) {
+      const product = await tx.product.findFirst({
+        where: { 
+          id: item.id,
+          businessId: businessId
+        }
+      });
+
+      if (!product) {
+        throw new Error(`Producto con ID ${item.id} no encontrado en este negocio.`);
+      }
+      if (product.quantity < item.quantity) {
+        throw new Error(`Stock insuficiente para ${product.name}.`);
+      }
+
       await tx.product.update({
-        where: { id: item.id },
+        where: { id: item.id }, // id is unique, no need for businessId here
         data: {
           quantity: {
             decrement: item.quantity,
@@ -50,14 +68,21 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
   revalidatePath('/products'); // Revalidate products page for inventory changes
 }
 
-export async function recordSingleSale(productId: string, paymentMethod: string) {
+export async function recordSingleSale(productId: string, paymentMethod: string, businessId: string) {
+  if (!businessId) {
+    throw new Error('Business ID no proporcionado.');
+  }
+
   await prisma.$transaction(async (tx) => {
-    const product = await tx.product.findUnique({
-      where: { id: productId },
+    const product = await tx.product.findFirst({
+      where: { 
+        id: productId,
+        businessId: businessId
+      },
     });
 
     if (!product) {
-      throw new Error('Producto no encontrado.');
+      throw new Error('Producto no encontrado en este negocio.');
     }
     if (product.quantity <= 0) {
       throw new Error('Producto sin stock.');
@@ -68,6 +93,7 @@ export async function recordSingleSale(productId: string, paymentMethod: string)
       data: {
         totalAmount: product.price, // Price of one unit
         paymentMethod,
+        businessId: businessId, // Associate sale with the business
         items: {
           create: [{
             productId: product.id,
@@ -80,7 +106,7 @@ export async function recordSingleSale(productId: string, paymentMethod: string)
 
     // 2. Decrement product quantity
     await tx.product.update({
-      where: { id: productId },
+      where: { id: productId }, // id is unique, no need for businessId here
       data: {
         quantity: {
           decrement: 1,

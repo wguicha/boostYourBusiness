@@ -1,17 +1,29 @@
 import prisma from "@/lib/prisma";
-import POSClient from "@/components/POSClient";
+import POSClient from "@/components/pos/POSClient";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";
 
 export default async function POSPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
 
-  if (!session) {
+  if (!session || !session.user?.id) {
     redirect("/auth/signin");
   }
 
+  const userBusiness = await prisma.businessUser.findFirst({
+    where: { userId: session.user.id },
+    select: { businessId: true },
+  });
+
+  if (!userBusiness) {
+    redirect('/onboarding');
+  }
+
   const products = await prisma.product.findMany({
+    where: {
+      businessId: userBusiness.businessId,
+    },
     orderBy: {
       quantity: 'desc',
     },
@@ -24,6 +36,6 @@ export default async function POSPage() {
   }));
 
   return (
-    <POSClient products={serializableProducts} />
+    <POSClient products={serializableProducts} businessId={userBusiness.businessId} />
   );
 }

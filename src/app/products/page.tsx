@@ -2,18 +2,35 @@ import prisma from "@/lib/prisma";
 import AddProductForm from "@/components/AddProductForm";
 import ProductList from "@/components/ProductList";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";
 
 export default async function ProductsPage() {
   console.log('Rendering Products page'); // Added console.log
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authConfig);
 
-  if (!session) {
+  if (!session || !session.user?.id) {
     redirect("/auth/signin");
   }
 
-  const products = await prisma.product.findMany();
+  const userBusiness = await prisma.businessUser.findFirst({
+    where: { userId: session.user.id },
+    select: { businessId: true },
+  });
+
+  let products = [];
+  if (userBusiness) {
+    products = await prisma.product.findMany({
+      where: {
+        businessId: userBusiness.businessId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  } else {
+    redirect('/onboarding');
+  }
 
   // Convert Decimal to string for client component serialization
   const serializableProducts = products.map(product => ({

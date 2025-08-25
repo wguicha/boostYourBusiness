@@ -17,7 +17,7 @@ export async function registerUser(formData: FormData) {
     throw new Error('El email ya está registrado.');
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10); // Hash password with salt rounds
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   await prisma.user.create({
     data: {

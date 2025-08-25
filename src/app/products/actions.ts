@@ -3,6 +3,8 @@
 import prisma from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 import { revalidatePath } from 'next/cache';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@/auth.config';
 
 async function uploadImage(file: File): Promise<string> {
   const fileBuffer = await file.arrayBuffer();
@@ -19,6 +21,19 @@ async function uploadImage(file: File): Promise<string> {
 }
 
 export async function addProduct(formData: FormData) {
+  const session = await getServerSession(authConfig);
+  if (!session?.user?.id) {
+    throw new Error('Not authenticated');
+  }
+
+  const userBusiness = await prisma.businessUser.findFirst({
+    where: { userId: session.user.id },
+  });
+
+  if (!userBusiness) {
+    throw new Error('User is not associated with any business');
+  }
+
   const name = formData.get('name') as string;
   const description = formData.get('description') as string;
   const price = parseFloat(formData.get('price') as string);
@@ -42,6 +57,7 @@ export async function addProduct(formData: FormData) {
       price,
       quantity,
       imageUrl,
+      businessId: userBusiness.businessId,
     },
   });
 
@@ -49,14 +65,47 @@ export async function addProduct(formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  await prisma.product.delete({
-    where: { id: productId },
+  const session = await getServerSession(authConfig);
+  if (!session?.user?.id) {
+    throw new Error('Not authenticated');
+  }
+
+  const userBusiness = await prisma.businessUser.findFirst({
+    where: { userId: session.user.id },
   });
+
+  if (!userBusiness) {
+    throw new Error('User is not associated with any business');
+  }
+
+  const result = await prisma.product.deleteMany({
+    where: {
+      id: productId,
+      businessId: userBusiness.businessId,
+    },
+  });
+
+  if (result.count === 0) {
+    throw new Error('Product not found or user does not have permission');
+  }
 
   revalidatePath('/products');
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
+  const session = await getServerSession(authConfig);
+  if (!session?.user?.id) {
+    throw new Error('Not authenticated');
+  }
+
+  const userBusiness = await prisma.businessUser.findFirst({
+    where: { userId: session.user.id },
+  });
+
+  if (!userBusiness) {
+    throw new Error('User is not associated with any business');
+  }
+
   const name = formData.get('name') as string;
   const description = formData.get('description') as string;
   const price = parseFloat(formData.get('price') as string);
@@ -73,6 +122,17 @@ export async function updateProduct(productId: string, formData: FormData) {
     throw new Error('Invalid data');
   }
 
+  const product = await prisma.product.findFirst({
+    where: {
+      id: productId,
+      businessId: userBusiness.businessId,
+    },
+  });
+
+  if (!product) {
+    throw new Error('Product not found or user does not have permission');
+  }
+
   await prisma.product.update({
     where: { id: productId },
     data: {
@@ -80,7 +140,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       description,
       price,
       quantity,
-      imageUrl: imageUrl || undefined, // Use new image URL or keep existing if not provided
+      imageUrl: imageUrl || product.imageUrl, // Use new image URL or keep existing
     },
   });
 
