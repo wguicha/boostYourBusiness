@@ -37,9 +37,22 @@ export async function updateUserProfile(userId: string, formData: FormData) {
     where: { id: userId },
     data: {
       name: name || null,
-      businessName: businessName || null,
     },
   });
+
+  if (businessName) {
+    const userBusiness = await prisma.businessUser.findFirst({
+      where: { userId: userId },
+      select: { businessId: true },
+    });
+
+    if (userBusiness) {
+      await prisma.business.update({
+        where: { id: userBusiness.businessId },
+        data: { name: businessName },
+      });
+    }
+  }
 
   revalidatePath('/profile');
 }

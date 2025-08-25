@@ -1,13 +1,13 @@
 import prisma from "@/lib/prisma";
 import AddProductForm from "@/components/AddProductForm";
 import ProductList from "@/components/ProductList";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";
 
 export default async function ProductsPage() {
   console.log('Rendering Products page'); // Added console.log
-  const session = await getServerSession(authConfig);
+  const session = await auth();
 
   if (!session || !session.user?.id) {
     redirect("/auth/signin");

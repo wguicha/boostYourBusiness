@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import EditProductForm from "@/components/EditProductForm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 interface EditProductPageProps {
@@ -11,7 +11,7 @@ interface EditProductPageProps {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) {
     redirect("/auth/signin");

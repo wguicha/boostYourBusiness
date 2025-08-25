@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import cloudinary from '@/lib/cloudinary';
 import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
+import { auth } from "@/auth";
 import { authConfig } from '@/auth.config';
 
 async function uploadImage(file: File): Promise<string> {
@@ -21,7 +21,7 @@ async function uploadImage(file: File): Promise<string> {
 }
 
 export async function addProduct(formData: FormData) {
-  const session = await getServerSession(authConfig);
+  const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Not authenticated');
   }
@@ -65,7 +65,7 @@ export async function addProduct(formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  const session = await getServerSession(authConfig);
+  const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Not authenticated');
   }
@@ -93,7 +93,7 @@ export async function deleteProduct(productId: string) {
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
-  const session = await getServerSession(authConfig);
+  const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Not authenticated');
   }
