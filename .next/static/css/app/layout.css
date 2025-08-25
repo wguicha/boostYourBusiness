@@ -72,11 +72,17 @@
   \*****************************************************************************************************************************************************************************************************************************************************************/
 /*! tailwindcss v4.1.12 | MIT License | https://tailwindcss.com */
 @layer properties;
+.visible {
+  visibility: visible;
+}
 .absolute {
   position: absolute;
 }
 .relative {
   position: relative;
+}
+.left-1\/2 {
+  left: calc(1/2 * 100%);
 }
 .z-10 {
   z-index: 10;
@@ -96,6 +102,9 @@
 .grid {
   display: grid;
 }
+.hidden {
+  display: none;
+}
 .table {
   display: table;
 }
@@ -114,6 +123,19 @@
 .w-full {
   width: 100%;
 }
+.flex-grow {
+  flex-grow: 1;
+}
+.flex-grow-0 {
+  flex-grow: 0;
+}
+.-translate-x-1\/2 {
+  --tw-translate-x: calc(calc(1/2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+.transform {
+  transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+}
 .appearance-none {
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -127,6 +149,9 @@
 }
 .items-center {
   align-items: center;
+}
+.justify-around {
+  justify-content: space-around;
 }
 .justify-between {
   justify-content: space-between;
@@ -186,6 +211,44 @@
     --tw-outline-style: none;
     outline-style: none;
   }
+}
+body {
+  margin: 0;
+}
+@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-translate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
 }
 @property --tw-border-style {
   syntax: "*";
@@ -260,6 +323,14 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-translate-z: 0;
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
       --tw-border-style: solid;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
@@ -277,5 +348,234 @@
       --tw-ring-offset-shadow: 0 0 #0000;
     }
   }
+}
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/Header/Header.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************/
+.Header_header__AF_3G {
+  background-color: #87CEEB;
+  color: #727272;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure it stays on top of other content */
+  margin: 0;
+  padding: 16px;
+  min-height: 60px; /* Ensure enough height */
+  overflow: visible; /* Prevent clipping */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.Header_header__AF_3G .Header_container__3JNoS {
+  overflow: visible; /* Prevent clipping */
+}
+
+.Header_header__AF_3G ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.Header_header__AF_3G a {
+  text-decoration: none;
+}
+
+.Header_menuContainer__B7NLq {
+  display: flex;
+  align-items: center;
+}
+
+.Header_mobileMenuButton__sbxfA {
+  display: none; /* Hidden by default on larger screens */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1001; /* Above menu */
+}
+
+.Header_hamburgerLine__AvNbX {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background-color: #727272;
+  margin: 5px 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.Header_navMenu__hJY1N {
+  display: flex; /* Default for larger screens */
+}
+
+/* Desktop Layout */
+.Header_desktopHeaderContainer__rPTjN {
+  display: none; /* Hidden by default, shown on desktop */
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px; /* Example max width for content */
+  margin: 0 auto; /* Center content */
+}
+
+.Header_desktopMenuNav__E_I_t {
+  flex-grow: 0;
+}
+
+.Header_desktopMenuNav__E_I_t ul {
+  display: flex;
+  gap: 20px; /* Adjust spacing as needed */
+}
+
+.Header_desktopBusinessName__OVtxA {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.Header_desktopUserIcon__ddtP2 {
+  flex-grow: 0;
+}
+
+/* Mobile Layout */
+.Header_mobileHeaderContainer__KzrPr {
+  display: none; /* Hidden by default, shown on mobile */
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px; /* Example max width for content */
+  margin: 0 auto; /* Center content */
+}
+
+.Header_mobileTopRow__gMUFE {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.Header_mobileBusinessName__Zd2YP {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.Header_mobileUserIcon__lbtxz {
+  /* No specific styles needed here, UserDropdown handles its own */
+}
+
+/* Media Queries */
+@media (min-width: 769px) { /* Desktop styles */
+  .Header_desktopHeaderContainer__rPTjN {
+    display: flex; /* Show desktop layout */
+  }
+  .Header_mobileHeaderContainer__KzrPr {
+    display: none; /* Hide mobile layout */
+  }
+}
+
+@media (max-width: 768px) { /* Mobile styles */
+  .Header_desktopHeaderContainer__rPTjN {
+    display: none; /* Hide desktop layout */
+  }
+  .Header_mobileHeaderContainer__KzrPr {
+    display: flex; /* Show mobile layout */
+  }
+  .Header_mobileMenuButton__sbxfA {
+    display: block; /* Show on small screens */
+  }
+  .Header_navMenu__hJY1N {
+    display: none; /* Hidden by default on small screens */
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: auto;
+    width: -moz-max-content;
+    width: max-content;
+    background-color: #87CEEB; /* Same as header background */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .Header_navMenuOpen__MYWuQ {
+    display: flex; /* Show when open */
+  }
+
+  .Header_navMenu__hJY1N li {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .Header_navMenu__hJY1N li a {
+    display: block;
+    padding: 10px;
+  }
+}
+
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/UserDropdown/UserDropdown.module.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************/
+.UserDropdown_dropdownContainer__J__sE {
+  position: relative;
+  display: inline-block;
+}
+
+.UserDropdown_userIcon__OpCWe {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #727272; /* Dark gray background for icon */
+  color: white; /* White text for initials */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+}
+
+.UserDropdown_dropdownMenu__mmP6k {
+  position: absolute;
+  top: 100%; /* Position below the icon */
+  right: 0;
+  background-color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  min-width: 160px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px; /* Space between icon and dropdown */
+}
+
+.UserDropdown_dropdownItem__T2ZUr {
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  color: #727272; /* Dark gray text for dropdown items */
+  white-space: nowrap;
+  cursor: pointer;
+  background-color: white; /* Ensure background is white */
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.UserDropdown_dropdownItem__T2ZUr:hover {
+  background-color: #f1f1f1;
+}
+
+.UserDropdown_logoutButton__7n_Ic {
+  background-color: #dc3545; /* Red background for logout button */
+  color: white; /* White text for logout button */
+}
+
+.UserDropdown_logoutButton__7n_Ic:hover {
+  background-color: #c82333; /* Darker red on hover */
 }
 

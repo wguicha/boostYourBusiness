@@ -1,32 +1,32 @@
-/*!***********************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/pos/POSClient.module.css ***!
-  \***********************************************************************************************************************************************************************************************************************************************************************************/
-.POSClient_container__WmRHh {
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./src/components/POSClient/POSClient.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************/
+.POSClient_container__fjlYv {
   display: flex;
   flex-direction: column;
   padding: 16px;
 }
 
-.POSClient_productGrid__GyLo1 {
+.POSClient_productGrid__s5Itd {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.POSClient_productCard__n6R8X {
+.POSClient_productCard__pw3_a {
   border: 1px solid #ccc;
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.POSClient_cartSummary__NG8QV {
+.POSClient_cartSummary__BBW4_ {
   background-color: #f0f0f0;
   padding: 16px;
   border-left: 1px solid #ccc;
 }
 
-.POSClient_submitButton__uLrmr {
+.POSClient_submitButton__UJmQt {
   width: 100%;
   background-color: #28a745;
   color: white;
@@ -37,32 +37,32 @@
   cursor: pointer;
 }
 
-.POSClient_productGridContainer__Ktn0b {
+.POSClient_productGridContainer__hextY {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
 }
 
-.POSClient_sectionTitle__nVRsK {
+.POSClient_sectionTitle__pfwS4 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 16px;
 }
 
-.POSClient_imageContainer__whejR {
+.POSClient_imageContainer__Ac2k7 {
   width: 100%;
   height: 128px;
   position: relative;
   margin-bottom: 8px;
 }
 
-.POSClient_productImage__fx8_O {
+.POSClient_productImage__6EF6V {
   border-radius: 4px;
   -o-object-fit: cover;
      object-fit: cover;
 }
 
-.POSClient_productName___qN9d {
+.POSClient_productName__WixnJ {
   font-weight: bold;
   font-size: 18px;
   white-space: nowrap;
@@ -70,24 +70,24 @@
   text-overflow: ellipsis;
 }
 
-.POSClient_productPrice__lAWSe {
+.POSClient_productPrice__h8cGR {
   color: #666;
   font-size: 14px;
 }
 
-.POSClient_productQuantity__f8J8N {
+.POSClient_productQuantity__JO37q {
   color: #666;
   font-size: 12px;
 }
 
-.POSClient_productActions__4umJV {
+.POSClient_productActions__qncKV {
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.POSClient_addToCartButton__QolJE {
+.POSClient_addToCartButton__KVMlh {
   background-color: #007bff;
   color: white;
   font-size: 14px;
@@ -97,7 +97,7 @@
   cursor: pointer;
 }
 
-.POSClient_recordSaleButton__VJ8BJ {
+.POSClient_recordSaleButton__6C_1K {
   background-color: #28a745;
   color: white;
   font-size: 14px;
@@ -107,7 +107,7 @@
   cursor: pointer;
 }
 
-.POSClient_editProductButton__5nYdo {
+.POSClient_editProductButton__go_kP {
   background-color: #6c757d;
   color: white;
   font-size: 14px;
@@ -117,7 +117,7 @@
   cursor: pointer;
 }
 
-.POSClient_successMessage__GsYPp {
+.POSClient_successMessage___Zu_9 {
   padding: 8px;
   margin-bottom: 16px;
   border-radius: 4px;
@@ -125,7 +125,7 @@
   color: #155724;
 }
 
-.POSClient_errorMessage__9kgFb {
+.POSClient_errorMessage__5xyF5 {
   padding: 8px;
   margin-bottom: 16px;
   border-radius: 4px;
@@ -133,28 +133,28 @@
   color: #721c24;
 }
 
-.POSClient_emptyCartMessage__4nMZO {
+.POSClient_emptyCartMessage__e5ggc {
   color: #6c757d;
 }
 
-.POSClient_cartItemsContainer__1pdbc {
+.POSClient_cartItemsContainer__XW2mb {
   flex: 1;
   overflow-y: auto;
 }
 
-.POSClient_cartItem__pBW9X {
+.POSClient_cartItem__NYvAn {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
 
-.POSClient_cartItemControls___PNCJ {
+.POSClient_cartItemControls__3otYP {
   display: flex;
   align-items: center;
 }
 
-.POSClient_quantityInput__fhtyL {
+.POSClient_quantityInput__0wKzx {
   width: 64px;
   text-align: center;
   border: 1px solid #ccc;
@@ -162,22 +162,22 @@
   margin-right: 8px;
 }
 
-.POSClient_removeButton__MxZD5 {
+.POSClient_removeButton__HWonN {
   color: #dc3545;
   cursor: pointer;
 }
 
-.POSClient_paymentTotalContainer__g0z2H {
+.POSClient_paymentTotalContainer__o_R2G {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #ccc;
 }
 
-.POSClient_paymentMethodContainer__CNFFn {
+.POSClient_paymentMethodContainer__TTbfD {
   margin-bottom: 16px;
 }
 
-.POSClient_paymentMethodLabel__yuRPf {
+.POSClient_paymentMethodLabel__nKtCc {
   display: block;
   color: #495057;
   font-size: 14px;
@@ -185,7 +185,7 @@
   margin-bottom: 8px;
 }
 
-.POSClient_paymentMethodSelect__bFWP1 {
+.POSClient_paymentMethodSelect___Qyxh {
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -193,7 +193,7 @@
   color: #495057;
 }
 
-.POSClient_totalAmountContainer__bwVv_ {
+.POSClient_totalAmountContainer__9AZwD {
   display: flex;
   justify-content: space-between;
   font-weight: bold;
