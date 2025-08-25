@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import UserProfileForm from "@/components/UserProfileForm";
+import UserProfileForm from "@/components/UserProfileForm/index";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -13,6 +13,13 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
+    include: {
+      businesses: {
+        include: {
+          business: true,
+        },
+      },
+    },
   });
 
   if (!user) {
@@ -25,6 +32,7 @@ export default async function ProfilePage() {
     createdAt: user.createdAt ? user.createdAt.toISOString() : null,
     updatedAt: user.updatedAt ? user.updatedAt.toISOString() : null, // Handle nullable updatedAt
     emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
+    businessName: user.businesses[0]?.business.name || null, // Add businessName
   };
 
   return (

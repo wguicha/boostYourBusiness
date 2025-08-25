@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
-import AddProductForm from "@/components/AddProductForm";
-import ProductList from "@/components/ProductList";
+import AddProductForm from "@/components/AddProductForm/index";
+import ProductList from "@/components/ProductList/index";
 import { auth } from "@/auth";
 import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";

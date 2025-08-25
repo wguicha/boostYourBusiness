@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import POSClient from "@/components/pos/POSClient";
+import POSClient from "@/components/POSClient/index";
 import { auth } from "@/auth";
 import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";
