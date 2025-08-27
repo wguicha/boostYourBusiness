@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Image from 'next/image'; // Keep Image for now, might remove if ProductCard handles it
 import { recordSale, recordSingleSale } from '@/app/pos/actions';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import styles from './POSClient.module.css';
+import ProductCard from '@/components/ProductCard/index'; // Import ProductCard
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
@@ -94,6 +95,29 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     }
   };
 
+  // Functions to pass to ProductCard
+  const handleEditProduct = (productId: string) => {
+    router.push(`/products/${productId}/edit`);
+  };
+
+  const handleAddToCartFromCard = (product: Product) => {
+    addToCart(product);
+  };
+
+  const handleDirectSaleFromCard = async (product: Product) => {
+    setIsSingleSalePending(true); // Set pending state
+    setMessage(null);
+    try {
+      await recordSingleSale(product.id, paymentMethod, businessId);
+      setMessage({ type: 'success', text: `Venta directa de ${product.name} registrada!` });
+    } catch (error: any) {
+      console.error('Error al registrar venta directa:', error);
+      setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
+    } finally {
+      setIsSingleSalePending(false); // Reset pending state
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* Product Grid */}
@@ -101,56 +125,13 @@ export default function POSClient({ products, businessId }: POSClientProps) {
         <h2 className={styles.sectionTitle}>Productos Disponibles</h2>
         <div className={styles.productGrid}>
           {products.map((product) => (
-            <div 
-              key={product.id} 
-              className={styles.productCard}
-            >
-              <div className={styles.imageContainer}>
-                <Image
-                  src={product.imageUrl || '/placeholder.svg'}
-                  alt={product.name}
-                  fill={true}
-                  className={styles.productImage}
-                />
-              </div>
-              <h3 className={styles.productName}>{product.name}</h3>
-              <p className={styles.productPrice}>${parseFloat(product.price).toFixed(2)}</p>
-              <p className={styles.productQuantity}>Inventario: {product.quantity}</p>
-              <div className={styles.productActions}>
-                <button 
-                  onClick={() => addToCart(product)}
-                  disabled={product.quantity === 0}
-                  className={styles.addToCartButton}
-                >
-                  Agregar al Carrito
-                </button>
-                <button 
-                  onClick={async () => {
-                    setIsSingleSalePending(true); // Set pending state
-                    setMessage(null);
-                    try {
-                      await recordSingleSale(product.id, paymentMethod, businessId);
-                      setMessage({ type: 'success', text: `Venta directa de ${product.name} registrada!` });
-                    } catch (error: any) {
-                      console.error('Error al registrar venta directa:', error);
-                      setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
-                    } finally {
-                      setIsSingleSalePending(false); // Reset pending state
-                    }
-                  }}
-                  disabled={product.quantity === 0 || isSingleSalePending} // Disable button
-                  className={styles.recordSaleButton}
-                >
-                  Registrar Venta
-                </button>
-                <button 
-                  onClick={() => router.push(`/products/${product.id}/edit`)}
-                  className={styles.editProductButton}
-                >
-                  Editar Producto
-                </button>
-              </div>
-            </div>
+            <ProductCard
+              key={product.id}
+              product={product}
+              onEdit={handleEditProduct}
+              onAddToCart={handleAddToCartFromCard}
+              onDirectSale={handleDirectSaleFromCard}
+            />
           ))}
         </div>
       </div>

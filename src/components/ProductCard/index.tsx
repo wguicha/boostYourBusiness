@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { FiEdit, FiShoppingCart, FiDollarSign } from 'react-icons/fi';
+import styles from './ProductCard.module.css'; // Import CSS Module
 
 interface ProductCardProps {
   product: {
@@ -18,49 +18,45 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale }: ProductCardProps) {
   return (
-    <div className="flex flex-col items-center space-y-2">
-      <div className="relative w-32 h-32">
+    <div className={styles.productCardContainer}>
+      <div className={styles.imageWrapper}>
         {/* Image Container */}
-        <div className="w-full h-full rounded-full border-4 border-yellow-400 overflow-hidden flex items-center justify-center">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              width={128}
-              height={128}
-              className="object-cover w-full h-full"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500 text-sm">Sin Imagen</span>
+        <div
+          className={styles.productImageFrame}
+          style={{ backgroundImage: `url(${product.imageUrl || '/placeholder.svg'})` }} // Use background-image
+        >
+          {/* No Image component or img tag here */}
+          {!product.imageUrl && ( // Display "Sin Imagen" if no image
+            <div className={styles.noImagePlaceholder}>
+              <span className={styles.noImageText}>Sin Imagen</span>
             </div>
           )}
         </div>
 
         {/* Edit Button */}
-        <button 
-          onClick={() => onEdit(product.id)} 
-          className="absolute -top-1 -right-1 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors z-10"
+        <button
+          onClick={() => onEdit(product.id)}
+          className={styles.editButton}
         >
           <FiEdit size={14} />
         </button>
 
         {/* Stock Indicator */}
-        <div className="absolute -top-1 -left-1 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full z-10">
+        <div className={styles.stockIndicator}>
           {product.stock}
         </div>
 
         {/* Action Buttons */}
-        <div className="absolute -bottom-1 -right-1 flex flex-col space-y-1 z-10">
-          <button 
-            onClick={() => onDirectSale(product)} 
-            className="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition-colors"
+        <div className={styles.actionButtonsContainer}>
+          <button
+            onClick={() => onDirectSale(product)}
+            className={styles.directSaleButton}
           >
             <FiDollarSign size={14} />
           </button>
-          <button 
-            onClick={() => onAddToCart(product)} 
-            className="bg-cyan-500 text-white p-2 rounded-full hover:bg-cyan-600 transition-colors"
+          <button
+            onClick={() => onAddToCart(product)}
+            className={styles.addToCartButton}
           >
             <FiShoppingCart size={14} />
           </button>
@@ -68,9 +64,9 @@ export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale
       </div>
 
       {/* Product Info */}
-      <div className="text-center w-36">
-        <p className="font-bold truncate">{product.name}</p>
-        <p className="text-gray-600">
+      <div className={styles.productInfo}>
+        <p className={styles.productNameText}>{product.name}</p>
+        <p className={styles.productPriceText}>
           {product.price.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
         </p>
       </div>

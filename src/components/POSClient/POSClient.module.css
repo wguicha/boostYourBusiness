@@ -48,6 +48,7 @@
 
 .imageContainer {
   width: 100%;
+  border-radius: 50%;
   height: 128px;
   position: relative;
   margin-bottom: 8px;
