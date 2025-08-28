@@ -18,7 +18,7 @@ export default function SignUpPage() {
     setSuccess(null);
 
     try {
-      await registerUser(new FormData(e.currentTarget));
+      await registerUser(new FormData(e.currentTarget as HTMLFormElement));
       setSuccess('¡Registro exitoso! Redirigiendo para iniciar sesión...');
       // Optionally sign in the user directly after registration
       const result = await signIn('credentials', {
