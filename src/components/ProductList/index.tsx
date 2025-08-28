@@ -37,15 +37,21 @@ export default function ProductList({ products }: ProductListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          onEdit={handleEdit}
-          onAddToCart={handleAddToCart}
-          onDirectSale={handleDirectSale}
-        />
-      ))}
+      {products.map((product) => {
+        const productForCard = {
+          ...product,
+          price: parseFloat(product.price), // Convert price to number
+        };
+        return (
+          <ProductCard
+            key={product.id}
+            product={productForCard}
+            onEdit={handleEdit}
+            onAddToCart={handleAddToCart}
+            onDirectSale={handleDirectSale}
+          />
+        );
+      })}
     </div>
   );
 }
