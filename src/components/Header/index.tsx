@@ -40,6 +40,11 @@ export default function Header() {
                 POS
               </Link>
             </li>
+            <li>
+              <Link href="/sales-report">
+                Reportes
+              </Link>
+            </li>
           </ul>
         </nav>
 
@@ -93,6 +98,11 @@ export default function Header() {
             <li>
               <Link href="/pos" onClick={closeMenu}>
                 POS
+              </Link>
+            </li>
+            <li>
+              <Link href="/sales-report" onClick={closeMenu}>
+                Reportes
               </Link>
             </li>
           </ul>
