@@ -16,6 +16,8 @@ export async function createBusinessForUser(prevState: any, formData: FormData) 
     return { message: 'El nombre del negocio debe tener al menos 3 caracteres.' };
   }
 
+  const userId: string = session.user.id;
+
   try {
     await prisma.$transaction(async (tx) => {
       const business = await tx.business.create({
@@ -26,7 +28,7 @@ export async function createBusinessForUser(prevState: any, formData: FormData) 
 
       await tx.businessUser.create({
         data: {
-          userId: session.user.id!,
+          userId: userId,
           businessId: business.id,
           role: 'OWNER',
         },
