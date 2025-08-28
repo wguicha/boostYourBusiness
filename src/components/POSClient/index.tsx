@@ -159,16 +159,21 @@ export default function POSClient({ products, businessId }: POSClientProps) {
         {/* Product Grid */}
         <div className={styles.productGridContainer}>
           <div className={styles.productGrid}>
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onEdit={handleEditProduct}
-                onAddToCart={handleAddToCartFromCard}
-                onDirectSale={handleDirectSaleFromCard}
-              />
-            ))}
-          </div>
+            {products.map((product) => {
+              const productForCard = {
+                ...product,
+                price: parseFloat(product.price), // Convert price to number
+              };
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={productForCard}
+                  onEdit={handleEditProduct}
+                  onAddToCart={handleAddToCartFromCard}
+                  onDirectSale={handleDirectSaleFromCard}
+                />
+              );
+            })}
         </div>
 
         {/* Cart Summary */}
