@@ -2,6 +2,12 @@
 
 import { useFormStatus } from 'react-dom';
 import { addProduct } from '@/app/products/actions';
+import styles from './AddProductForm.module.css';
+
+interface AddProductFormProps {
+  onClose: () => void;
+  onProductAdded: () => void; // Callback to refresh product list
+}
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -10,40 +16,54 @@ function SubmitButton() {
     <button 
       type="submit" 
       disabled={pending}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-400"
+      className={styles.submitButton}
     >
       {pending ? 'Agregando...' : 'Agregar Producto'}
     </button>
   );
 }
 
-export default function AddProductForm() {
+export default function AddProductForm({ onClose, onProductAdded }: AddProductFormProps) {
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      await addProduct(formData);
+      onProductAdded(); // Notify parent that product was added
+      onClose(); // Close modal on successful add
+    } catch (error) {
+      console.error('Error al agregar el producto:', error);
+      alert('Error al agregar el producto.');
+    }
+  };
+
   return (
-    <form action={addProduct} className="p-4 border rounded-lg shadow-md mb-6">
-      <h2 className="text-xl font-semibold mb-4">Agregar Nuevo Producto</h2>
-      <div className="mb-4">
-        <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Nombre del Producto</label>
-        <input type="text" id="name" name="name" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+    <form onSubmit={handleSubmit} className={styles.formContainer}>
+      <h2 className={styles.formTitle}>Agregar Nuevo Producto</h2>
+      <div className={styles.formGroup}>
+        <label htmlFor="name" className={styles.label}>Nombre del Producto</label>
+        <input type="text" id="name" name="name" required className={styles.input} />
       </div>
-      <div className="mb-4">
-        <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
-        <textarea id="description" name="description" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+      <div className={styles.formGroup}>
+        <label htmlFor="description" className={styles.label}>Descripción</label>
+        <textarea id="description" name="description" className={styles.textarea}></textarea>
       </div>
-      <div className="mb-4">
-        <label htmlFor="image" className="block text-gray-700 text-sm font-bold mb-2">Imagen del Producto</label>
-        <input type="file" id="image" name="image" accept="image/*" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+      <div className={styles.formGroup}>
+        <label htmlFor="image" className={styles.label}>Imagen del Producto</label>
+        <input type="file" id="image" name="image" accept="image/*" className={`${styles.input} ${styles.fileInput}`} />
       </div>
-      <div className="flex gap-4 mb-4">
-        <div className="w-1/2">
-          <label htmlFor="price" className="block text-gray-700 text-sm font-bold mb-2">Precio</label>
-          <input type="number" id="price" name="price" step="0.01" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+      <div className={styles.flexGroup}>
+        <div className={styles.flexItemHalf}>
+          <label htmlFor="price" className={styles.label}>Precio</label>
+          <input type="number" id="price" name="price" step="0.01" required className={styles.input} />
         </div>
-        <div className="w-1/2">
-          <label htmlFor="quantity" className="block text-gray-700 text-sm font-bold mb-2">Cantidad</label>
-          <input type="number" id="quantity" name="quantity" step="1" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        <div className={styles.flexItemHalf}>
+          <label htmlFor="quantity" className={styles.label}>Cantidad</label>
+          <input type="number" id="quantity" name="quantity" step="1" required className={styles.input} />
         </div>
       </div>
       <SubmitButton />
+      <button type="button" onClick={onClose} className={styles.cancelButton}>
+        Cancelar
+      </button>
     </form>
   );
 }

@@ -16,13 +16,17 @@ interface ProductListProps {
     createdAt: Date;
     updatedAt: Date;
   }>;
+  onEditProduct: (product: Product) => void; // New prop for editing
 }
 
-export default function ProductList({ products }: ProductListProps) {
+export default function ProductList({ products, onEditProduct }: ProductListProps) {
   const router = useRouter();
 
   const handleEdit = (productId: string) => {
-    router.push(`/products/${productId}/edit`);
+    const productToEdit = products.find(p => p.id === productId);
+    if (productToEdit) {
+      onEditProduct(productToEdit);
+    }
   };
 
   const handleAddToCart = (product: any) => {

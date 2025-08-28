@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import styles from './POSClient.module.css';
 import CartIcon from '@/components/CartIcon';
 import ProductCard from '@/components/ProductCard/index';
+import Modal from '@/components/Modal'; // Import the Modal component
+import EditProductForm from '@/components/EditProductForm'; // Import the EditProductForm
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
@@ -60,6 +62,10 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const [modalQuantity, setModalQuantity] = useState(1);
   const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Default to Efectivo
 
+  // State for the edit product modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find(item => item.product.id === product.id);
@@ -110,7 +116,17 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   };
 
   const handleEditProduct = (productId: string) => {
-    router.push(`/products/${productId}/edit`);
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      setProductToEdit(product);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setProductToEdit(null);
+    router.refresh(); // Refresh the product list after editing
   };
 
   const handleAddToCartFromCard = (product: Product) => {
@@ -313,6 +329,13 @@ export default function POSClient({ products, businessId }: POSClientProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {isEditModalOpen && productToEdit && (
+        <Modal isOpen={isEditModalOpen} onClose={handleCloseEditModal} title="Editar Producto">
+          <EditProductForm product={productToEdit} onClose={handleCloseEditModal} />
+        </Modal>
       )}
     </>
   );
