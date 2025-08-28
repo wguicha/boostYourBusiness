@@ -26,7 +26,7 @@ export async function createBusinessForUser(prevState: any, formData: FormData) 
 
       await tx.businessUser.create({
         data: {
-          userId: session.user.id,
+          userId: session.user.id!,
           businessId: business.id,
           role: 'OWNER',
         },
