@@ -29,8 +29,6 @@ export default async function ProfilePage() {
   // Convert Date objects to string for client component serialization
   const serializableUser = {
     ...user,
-    createdAt: user.createdAt ? user.createdAt.toISOString() : null,
-    updatedAt: user.updatedAt ? user.updatedAt.toISOString() : null, // Handle nullable updatedAt
     emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
     businessName: user.businesses[0]?.business.name || null, // Add businessName
   };
