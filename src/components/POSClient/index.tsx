@@ -6,6 +6,7 @@ import { recordSale, recordSingleSale } from '@/app/pos/actions';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import styles from './POSClient.module.css';
+import CartIcon from '@/components/CartIcon';
 import ProductCard from '@/components/ProductCard/index'; // Import ProductCard
 
 // Import Product type from Prisma client, but override price to be string
@@ -45,6 +46,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const router = useRouter(); // Initialize useRouter
   const [isSingleSalePending, setIsSingleSalePending] = useState(false); // New state for single sale button
+  const [isCartVisible, setIsCartVisible] = useState(false); // State to control cart visibility
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -118,83 +120,101 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     }
   };
 
+  const toggleCart = () => {
+    setIsCartVisible(!isCartVisible);
+  };
+
   return (
-    <div className={styles.container}>
-      {/* Product Grid */}
-      <div className={styles.productGridContainer}>
-        
-        <div className={styles.productGrid}>
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onEdit={handleEditProduct}
-              onAddToCart={handleAddToCartFromCard}
-              onDirectSale={handleDirectSaleFromCard}
-            />
-          ))}
+    <>
+      <div className={styles.container}>
+        {/* Product Grid */}
+        <div className={styles.productGridContainer}>
+          <div className={styles.productGrid}>
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onEdit={handleEditProduct}
+                onAddToCart={handleAddToCartFromCard}
+                onDirectSale={handleDirectSaleFromCard}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Cart Summary */}
+        <div className={`${styles.cartSummary} ${isCartVisible ? styles.cartVisible : ''}`}>
+          <button onClick={toggleCart} className={styles.closeCartButton}>
+            &times;
+          </button>
+          <h2 className={styles.sectionTitle}>Carrito de Compras</h2>
+          {message && (
+            <div className={message.type === 'success' ? styles.successMessage : styles.errorMessage}>
+              {message.text}
+            </div>
+          )}
+          {cart.length === 0 ? (
+            <p className={styles.emptyCartMessage}>El carrito está vacío.</p>
+          ) : (
+            <div className={styles.cartItemsContainer}>
+              {cart.map((item) => (
+                <div key={item.product.id} className={styles.cartItem}>
+                  <span>{item.product.name} (x{item.quantity})</span>
+                  <div className={styles.cartItemControls}>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
+                      className={styles.quantityInput}
+                    />
+                    <span>${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</span>
+                    <button
+                      onClick={() => removeFromCart(item.product.id)}
+                      className={styles.removeButton}
+                    >
+                      X
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className={styles.paymentTotalContainer}>
+            <div className={styles.paymentMethodContainer}>
+              <label htmlFor="paymentMethod" className={styles.paymentMethodLabel}>Método de Pago</label>
+              <select
+                id="paymentMethod"
+                name="paymentMethod"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className={styles.paymentMethodSelect}
+              >
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta">Tarjeta</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </div>
+            <div className={styles.totalAmountContainer}>
+              <span>Total:</span>
+              <span>${totalAmount.toFixed(2)}</span>
+            </div>
+            <form action={handleRecordSale}>
+              <SubmitButton />
+            </form>
+          </div>
         </div>
       </div>
 
-      {/* Cart Summary */}
-      <div className={styles.cartSummary}>
-        <h2 className={styles.sectionTitle}>Carrito de Compras</h2>
-        {message && (
-          <div className={message.type === 'success' ? styles.successMessage : styles.errorMessage}>
-            {message.text}
-          </div>
-        )}
-        {cart.length === 0 ? (
-          <p className={styles.emptyCartMessage}>El carrito está vacío.</p>
-        ) : (
-          <div className={styles.cartItemsContainer}>
-            {cart.map((item) => (
-              <div key={item.product.id} className={styles.cartItem}>
-                <span>{item.product.name} (x{item.quantity})</span>
-                <div className={styles.cartItemControls}>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    value={item.quantity} 
-                    onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
-                    className={styles.quantityInput}
-                  />
-                  <span>${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</span>
-                  <button 
-                    onClick={() => removeFromCart(item.product.id)}
-                    className={styles.removeButton}
-                  >
-                    X
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className={styles.paymentTotalContainer}>
-          <div className={styles.paymentMethodContainer}>
-            <label htmlFor="paymentMethod" className={styles.paymentMethodLabel}>Método de Pago</label>
-            <select 
-              id="paymentMethod" 
-              name="paymentMethod" 
-              value={paymentMethod} 
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              className={styles.paymentMethodSelect}
-            >
-              <option value="Efectivo">Efectivo</option>
-              <option value="Tarjeta">Tarjeta</option>
-              <option value="Transferencia">Transferencia</option>
-            </select>
-          </div>
-          <div className={styles.totalAmountContainer}>
-            <span>Total:</span>
-            <span>${totalAmount.toFixed(2)}</span>
-          </div>
-          <form action={handleRecordSale}>
-            <SubmitButton />
-          </form>
-        </div>
-      </div>
-    </div>
+      {/* Cart Toggle Button */}
+      {!isCartVisible && (
+        <button onClick={toggleCart} className={styles.cartToggleButton}>
+          <CartIcon className={styles.cartIcon} />
+          {cart.length > 0 && (
+            <span className={styles.cartItemCount}>{cart.length}</span>
+          )}
+        </button>
+      )}
+    </>
   );
 }

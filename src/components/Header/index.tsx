@@ -19,6 +19,10 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={`${styles.header}`}>
       {/* Desktop Layout */}
@@ -82,12 +86,12 @@ export default function Header() {
         <nav className={`${styles.navMenu} ${isMenuOpen ? styles.navMenuOpen : ''}`}>
           <ul>
             <li>
-              <Link href="/products">
+              <Link href="/products" onClick={closeMenu}>
                 Productos
               </Link>
             </li>
             <li>
-              <Link href="/pos">
+              <Link href="/pos" onClick={closeMenu}>
                 POS
               </Link>
             </li>
