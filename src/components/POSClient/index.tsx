@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image'; // Keep Image for now, might remove if ProductCard handles it
+import Image from 'next/image';
 import { recordSale, recordSingleSale } from '@/app/pos/actions';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import styles from './POSClient.module.css';
 import CartIcon from '@/components/CartIcon';
-import ProductCard from '@/components/ProductCard/index'; // Import ProductCard
+import ProductCard from '@/components/ProductCard/index';
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
@@ -26,6 +26,12 @@ interface POSClientProps {
   businessId: string;
 }
 
+const paymentMethodsConfig = [
+  { id: 'Efectivo', name: 'Efectivo', logoPath: '/efectivoLogo.png' },
+  { id: 'MB Way', name: 'MB Way', logoPath: '/mbwayLogo.png' },
+  { id: 'Tarjeta de Crédito', name: 'Tarjeta de Crédito', logoPath: '/ccLogo.png' },
+];
+
 function SubmitButton() {
   const { pending } = useFormStatus();
 
@@ -42,17 +48,17 @@ function SubmitButton() {
 
 export default function POSClient({ products, businessId }: POSClientProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState('Efectivo');
+  const [paymentMethod, setPaymentMethod] = useState('Efectivo'); // Default to Efectivo
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const router = useRouter(); // Initialize useRouter
-  const [isSingleSalePending, setIsSingleSalePending] = useState(false); // New state for single sale button
-  const [isCartVisible, setIsCartVisible] = useState(false); // State to control cart visibility
+  const router = useRouter();
+  const [isSingleSalePending, setIsSingleSalePending] = useState(false);
+  const [isCartVisible, setIsCartVisible] = useState(false);
 
   // State for the confirmation modal
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selectedProductForSale, setSelectedProductForSale] = useState<Product | null>(null);
   const [modalQuantity, setModalQuantity] = useState(1);
-  const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo');
+  const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Default to Efectivo
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -95,7 +101,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
       }));
 
       await recordSale(saleItems, totalAmount, paymentMethod, businessId);
-      setCart([]); // Clear cart on successful sale
+      setCart([]);
       setMessage({ type: 'success', text: 'Venta registrada con éxito y stock actualizado!' });
     } catch (error: any) {
       console.error('Error al registrar la venta:', error);
@@ -103,7 +109,6 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     }
   };
 
-  // Functions to pass to ProductCard
   const handleEditProduct = (productId: string) => {
     router.push(`/products/${productId}/edit`);
   };
@@ -115,7 +120,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const handleDirectSaleFromCard = (product: Product) => {
     setSelectedProductForSale(product);
     setModalQuantity(1);
-    setModalPaymentMethod(paymentMethod);
+    setModalPaymentMethod(paymentMethod); // Use current cart payment method as default for modal
     setIsConfirmationModalOpen(true);
   };
 
@@ -217,18 +222,25 @@ export default function POSClient({ products, businessId }: POSClientProps) {
           )}
           <div className={styles.paymentTotalContainer}>
             <div className={styles.paymentMethodContainer}>
-              <label htmlFor="paymentMethod" className={styles.paymentMethodLabel}>Método de Pago</label>
-              <select
-                id="paymentMethod"
-                name="paymentMethod"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className={styles.paymentMethodSelect}
-              >
-                <option value="Efectivo">Efectivo</option>
-                <option value="Tarjeta">Tarjeta</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
+              <label className={styles.paymentMethodLabel}>Método de Pago</label>
+              <div className={styles.paymentMethodLogos}>
+                {paymentMethodsConfig.map((method) => (
+                  <button
+                    key={method.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(method.id)}
+                    className={`${styles.paymentMethodLogoButton} ${paymentMethod === method.id ? styles.paymentMethodLogoButtonSelected : ''}`}
+                  >
+                    <Image
+                      src={method.logoPath}
+                      alt={method.name}
+                      width={50}
+                      height={50}
+                      className={styles.paymentLogo}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
             <div className={styles.totalAmountContainer}>
               <span>Total:</span>
@@ -246,7 +258,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
         <button onClick={toggleCart} className={styles.cartToggleButton}>
           <CartIcon className={styles.cartIcon} />
           {cart.length > 0 && (
-            <span className={styles.cartItemCount}>{cart.length}</span>
+            <span className={styles.cartItemCount}>{cart.reduce((total, item) => total + item.quantity, 0)}</span>
           )}
         </button>
       )}
@@ -271,17 +283,25 @@ export default function POSClient({ products, businessId }: POSClientProps) {
                 />
                 <button onClick={incrementQuantity} className={styles.quantityButton}>+</button>
               </div>
-              <label htmlFor="paymentMethodModal">Método de Pago:</label>
-              <select
-                id="paymentMethodModal"
-                value={modalPaymentMethod}
-                onChange={(e) => setModalPaymentMethod(e.target.value)}
-                className={styles.paymentMethodSelect}
-              >
-                <option value="Efectivo">Efectivo</option>
-                <option value="Tarjeta">Tarjeta</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
+              <label>Método de Pago:</label>
+              <div className={styles.paymentMethodLogos}>
+                {paymentMethodsConfig.map((method) => (
+                  <button
+                    key={method.id}
+                    type="button"
+                    onClick={() => setModalPaymentMethod(method.id)}
+                    className={`${styles.paymentMethodLogoButton} ${modalPaymentMethod === method.id ? styles.paymentMethodLogoButtonSelected : ''}`}
+                  >
+                    <Image
+                      src={method.logoPath}
+                      alt={method.name}
+                      width={50}
+                      height={50}
+                      className={styles.paymentLogo}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
             <div className={styles.modalActions}>
               <button onClick={handleCloseModal} className={styles.cancelButton}>
