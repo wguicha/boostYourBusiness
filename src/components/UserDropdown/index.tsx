@@ -11,7 +11,7 @@ export default function UserDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const user = session?.user;
-  const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : user?.email ? user.email[0].toUpperCase() : '?';
+  const initials = user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : user?.email ? user.email[0].toUpperCase() : '?';
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
