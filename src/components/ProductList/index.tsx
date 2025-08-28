@@ -14,16 +14,7 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 }
 
 interface ProductListProps {
-  products: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-    price: string; // Price as string from server
-    quantity: number;
-    imageUrl: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  }>;
+  products: Product[];
   onEditProduct: (product: Product) => void; // New prop for editing
 }
 
