@@ -5,6 +5,14 @@ import { deleteProduct } from "@/app/products/actions";
 import { useRouter } from 'next/navigation';
 import ProductCard from '@/components/ProductCard/index'; // Import ProductCard
 
+// Import Product type from Prisma client, but override price to be string
+import { Product as PrismaProduct } from '@prisma/client';
+
+interface Product extends Omit<PrismaProduct, 'price'> {
+  price: string;
+  businessId: string; // Add businessId
+}
+
 interface ProductListProps {
   products: Array<{
     id: string;
