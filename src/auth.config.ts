@@ -19,7 +19,7 @@ export const authConfig = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
           include: {
             businesses: {
               include: {
