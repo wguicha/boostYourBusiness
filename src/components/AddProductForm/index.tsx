@@ -24,7 +24,9 @@ function SubmitButton() {
 }
 
 export default function AddProductForm({ onClose, onProductAdded }: AddProductFormProps) {
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent default form submission
+    const formData = new FormData(event.currentTarget);
     try {
       await addProduct(formData);
       onProductAdded(); // Notify parent that product was added
