@@ -4,13 +4,7 @@ import EditProductForm from "@/components/EditProductForm/index";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-interface EditProductPageProps {
-  params: {
-    productId: string;
-  };
-}
-
-export default async function EditProductPage({ params }: EditProductPageProps) {
+export default async function EditProductPage({ params }: { params: { productId: string } }) {
   const session = await auth();
 
   if (!session) {
