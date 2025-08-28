@@ -8,7 +8,7 @@ interface ProductCardProps {
     id: string;
     name: string;
     price: number;
-    stock: number;
+    quantity: number;
     imageUrl?: string | null;
   };
   onEdit: (productId: string) => void;
@@ -32,6 +32,11 @@ export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale
             </div>
           )}
         </div>
+        <p className={styles.productPriceText}> {/* Replaced text-gray-600 */}
+          <span className={styles.priceCircle}>
+            {product.price.toLocaleString('es-CO', { minimumFractionDigits: 0 })} €
+          </span>
+        </p>
 
         {/* Edit Button */}
         <button
@@ -43,32 +48,28 @@ export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale
 
         {/* Stock Indicator */}
         <div className={styles.stockIndicator}>
-          {product.stock}
+          {product.quantity}
         </div>
 
         {/* Action Buttons */}
-        <div className={styles.actionButtonsContainer}>
-          <button
-            onClick={() => onDirectSale(product)}
-            className={styles.directSaleButton}
-          >
-            <FiDollarSign size={14} />
-          </button>
-          <button
-            onClick={() => onAddToCart(product)}
-            className={styles.addToCartButton}
-          >
-            <FiShoppingCart size={14} />
-          </button>
-        </div>
+        <button
+          onClick={() => onAddToCart(product)}
+          className={styles.addToCartButton}
+        >
+          <FiShoppingCart size={14} />
+        </button>
+        <button
+          onClick={() => onDirectSale(product)}
+          className={styles.directSaleButton}
+        >
+          <FiDollarSign size={14} />
+        </button>
       </div>
 
       {/* Product Info */}
+      {/* Product Info */}
       <div className={styles.productInfo}>
         <p className={styles.productNameText}>{product.name}</p>
-        <p className={styles.productPriceText}>
-          {product.price.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}
-        </p>
       </div>
     </div>
   );

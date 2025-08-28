@@ -122,7 +122,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     <div className={styles.container}>
       {/* Product Grid */}
       <div className={styles.productGridContainer}>
-        <h2 className={styles.sectionTitle}>Productos Disponibles</h2>
+        
         <div className={styles.productGrid}>
           {products.map((product) => (
             <ProductCard
