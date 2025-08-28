@@ -17,8 +17,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     redirect("/auth/signin");
   }
 
-  const resolvedParams = await params; // Await params
-  const { productId } = resolvedParams;
+  const { productId } = params;
   const product = await prisma.product.findUnique({
     where: { id: productId },
   });

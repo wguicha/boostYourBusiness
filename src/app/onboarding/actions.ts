@@ -1,13 +1,12 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authConfig } from '@/auth.config';
+import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 export async function createBusinessForUser(prevState: any, formData: FormData) {
-  const session = await getServerSession(authConfig);
+  const session = await auth();
   if (!session?.user?.id) {
     return { message: 'Usuario no autenticado.' };
   }
