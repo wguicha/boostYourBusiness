@@ -174,6 +174,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
                 />
               );
             })}
+        </div>}
         </div>
 
         {/* Cart Summary */}
