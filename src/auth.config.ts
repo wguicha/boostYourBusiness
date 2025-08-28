@@ -55,6 +55,7 @@ export const authConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
         token.businessName = (user as any).businessName; // Add businessName to token
       }
       return token;
@@ -62,6 +63,9 @@ export const authConfig = {
     async session({ session, token }) {
       if (token.id && session.user) {
         session.user.id = token.id as string;
+      }
+      if (token.name && session.user) {
+        session.user.name = token.name as string;
       }
       if (token.businessName && session.user) {
         (session.user as any).businessName = token.businessName; // Add businessName to session.user

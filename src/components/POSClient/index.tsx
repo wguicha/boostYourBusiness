@@ -48,6 +48,12 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const [isSingleSalePending, setIsSingleSalePending] = useState(false); // New state for single sale button
   const [isCartVisible, setIsCartVisible] = useState(false); // State to control cart visibility
 
+  // State for the confirmation modal
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [selectedProductForSale, setSelectedProductForSale] = useState<Product | null>(null);
+  const [modalQuantity, setModalQuantity] = useState(1);
+  const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo');
+
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find(item => item.product.id === product.id);
@@ -106,18 +112,41 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     addToCart(product);
   };
 
-  const handleDirectSaleFromCard = async (product: Product) => {
-    setIsSingleSalePending(true); // Set pending state
+  const handleDirectSaleFromCard = (product: Product) => {
+    setSelectedProductForSale(product);
+    setModalQuantity(1);
+    setModalPaymentMethod(paymentMethod);
+    setIsConfirmationModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsConfirmationModalOpen(false);
+    setSelectedProductForSale(null);
+  };
+
+  const handleConfirmSale = async () => {
+    if (!selectedProductForSale) return;
+
+    setIsSingleSalePending(true);
     setMessage(null);
     try {
-      await recordSingleSale(product.id, paymentMethod, businessId);
-      setMessage({ type: 'success', text: `Venta directa de ${product.name} registrada!` });
+      await recordSingleSale(selectedProductForSale.id, modalPaymentMethod, businessId, modalQuantity);
+      setMessage({ type: 'success', text: `Venta directa de ${selectedProductForSale.name} registrada!` });
     } catch (error: any) {
       console.error('Error al registrar venta directa:', error);
       setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
     } finally {
-      setIsSingleSalePending(false); // Reset pending state
+      setIsSingleSalePending(false);
+      handleCloseModal();
     }
+  };
+
+  const incrementQuantity = () => {
+    setModalQuantity(prev => prev + 1);
+  };
+
+  const decrementQuantity = () => {
+    setModalQuantity(prev => Math.max(1, prev - 1));
   };
 
   const toggleCart = () => {
@@ -214,6 +243,50 @@ export default function POSClient({ products, businessId }: POSClientProps) {
             <span className={styles.cartItemCount}>{cart.length}</span>
           )}
         </button>
+      )}
+
+      {/* Confirmation Modal */}
+      {isConfirmationModalOpen && selectedProductForSale && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2 className={styles.sectionTitle}>Confirmar Venta Directa</h2>
+            <p>Producto: <strong>{selectedProductForSale.name}</strong></p>
+            <div className={styles.modalForm}>
+              <label htmlFor="quantity">Cantidad:</label>
+              <div className={styles.quantityControl}>
+                <button onClick={decrementQuantity} className={styles.quantityButton}>-</button>
+                <input
+                  type="number"
+                  id="quantity"
+                  min="1"
+                  value={modalQuantity}
+                  onChange={(e) => setModalQuantity(parseInt(e.target.value))}
+                  className={styles.quantityInput}
+                />
+                <button onClick={incrementQuantity} className={styles.quantityButton}>+</button>
+              </div>
+              <label htmlFor="paymentMethodModal">Método de Pago:</label>
+              <select
+                id="paymentMethodModal"
+                value={modalPaymentMethod}
+                onChange={(e) => setModalPaymentMethod(e.target.value)}
+                className={styles.paymentMethodSelect}
+              >
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta">Tarjeta</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </div>
+            <div className={styles.modalActions}>
+              <button onClick={handleCloseModal} className={styles.cancelButton}>
+                Cancelar
+              </button>
+              <button onClick={handleConfirmSale} className={styles.confirmButton} disabled={isSingleSalePending}>
+                {isSingleSalePending ? 'Registrando...' : 'Confirmar Venta'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

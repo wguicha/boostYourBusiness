@@ -68,9 +68,12 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
   revalidatePath('/products'); // Revalidate products page for inventory changes
 }
 
-export async function recordSingleSale(productId: string, paymentMethod: string, businessId: string) {
+export async function recordSingleSale(productId: string, paymentMethod: string, businessId: string, quantity: number) {
   if (!businessId) {
     throw new Error('Business ID no proporcionado.');
+  }
+  if (quantity <= 0) {
+    throw new Error('La cantidad debe ser mayor que cero.');
   }
 
   await prisma.$transaction(async (tx) => {
@@ -84,20 +87,20 @@ export async function recordSingleSale(productId: string, paymentMethod: string,
     if (!product) {
       throw new Error('Producto no encontrado en este negocio.');
     }
-    if (product.quantity <= 0) {
-      throw new Error('Producto sin stock.');
+    if (product.quantity < quantity) {
+      throw new Error(`Stock insuficiente para ${product.name}.`);
     }
 
     // 1. Create the Sale record for a single item
     const sale = await tx.sale.create({
       data: {
-        totalAmount: product.price, // Price of one unit
+        totalAmount: product.price.mul(quantity),
         paymentMethod,
         businessId: businessId, // Associate sale with the business
         items: {
           create: [{
             productId: product.id,
-            quantity: 1,
+            quantity: quantity,
             priceAtSale: product.price,
           }],
         },
@@ -109,7 +112,7 @@ export async function recordSingleSale(productId: string, paymentMethod: string,
       where: { id: productId }, // id is unique, no need for businessId here
       data: {
         quantity: {
-          decrement: 1,
+          decrement: quantity,
         },
       },
     });
