@@ -6,10 +6,32 @@
 }
 
 .productGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  /* This will now be a container for sections, not directly for cards */
+  display: flex; /* Use flex to stack sections vertically */
+  flex-direction: column;
+  gap: 30px; /* Space between product and combo sections */
   margin-top: 20px;
+}
+
+.productSection,
+.comboSection {
+  /* Each section will take full width within the flex container */
+  width: 100%;
+}
+
+.productCardGrid,
+.comboCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Force 2 columns */
+  gap: 16px;
+  margin-top: 16px; /* Space below the section title */
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px; /* Keep existing margin-bottom */
+  /* No need for grid-column: 1 / -1; here if parent is flex and takes full width */
 }
 
 .productCard {

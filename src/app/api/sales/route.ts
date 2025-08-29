@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { auth } from '../../../auth';
+import { Decimal } from '@prisma/client/runtime/library'; // Import Decimal
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -9,16 +10,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  // Assuming a user is associated with a business, or we need to get the businessId from the user's session/profile
-  // For now, let's assume the user's businessId is directly available or can be fetched.
-  // This part might need adjustment based on how businessId is linked to the authenticated user.
-  // For demonstration, let's try to find the businessId from the user's associated businesses.
   const userWithBusinesses = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
       businesses: {
         select: { businessId: true },
-        take: 1, // Assuming a user belongs to at least one business for this context
+        take: 1,
       },
     },
   });
@@ -58,36 +55,67 @@ export async function GET(req: NextRequest) {
       include: {
         items: {
           include: {
-            product: true,
+            product: true, // Include product details if it's a product sale item
+            combo: { // Include combo details if it's a combo sale item
+              include: {
+                products: { // Include products within the combo
+                  include: {
+                    product: true, // Include product details for combo items
+                  },
+                },
+              },
+            },
           },
         },
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc', // Order by most recent sales first
       },
     });
 
-    // Aggregate by product
+    // Convert Decimal to string for client component serialization
+    const serializableSales = sales.map(sale => ({
+      ...sale,
+      totalAmount: sale.totalAmount.toString(),
+      items: sale.items.map(item => ({
+        ...item,
+        priceAtSale: item.priceAtSale.toString(),
+        product: item.product ? { ...item.product, price: item.product.price.toString() } : null,
+        combo: item.combo ? {
+          ...item.combo,
+          price: item.combo.price.toString(),
+          products: item.combo.products.map(cp => ({
+            ...cp,
+            product: { ...cp.product, price: cp.product.price.toString() }
+          }))
+        } : null,
+      })),
+    }));
+
+    // Aggregate by product (re-adding original logic)
     const salesByProduct: { [key: string]: { name: string; quantity: number; total: number } } = {};
     sales.forEach(sale => {
       sale.items.forEach(item => {
-        const productId = item.productId;
-        const productName = item.product.name;
-        const itemTotal = item.quantity * item.priceAtSale.toNumber(); // Convert Decimal to number
+        const itemName = item.product?.name || item.combo?.name || 'Desconocido'; // Use product or combo name
+        const itemTotal = new Decimal(item.priceAtSale).mul(item.quantity).toNumber();
 
-        if (!salesByProduct[productId]) {
-          salesByProduct[productId] = { name: productName, quantity: 0, total: 0 };
+        // Use a unique key for product/combo to aggregate correctly
+        const key = item.productId || item.comboId;
+        if (!key) return; // Skip if no product or combo ID
+
+        if (!salesByProduct[key]) {
+          salesByProduct[key] = { name: itemName, quantity: 0, total: 0 };
         }
-        salesByProduct[productId].quantity += item.quantity;
-        salesByProduct[productId].total += itemTotal;
+        salesByProduct[key].quantity += item.quantity;
+        salesByProduct[key].total += itemTotal;
       });
     });
 
-    // Aggregate by payment method
+    // Aggregate by payment method (re-adding original logic)
     const salesByPaymentMethod: { [key: string]: { method: string; total: number } } = {};
     sales.forEach(sale => {
       const method = sale.paymentMethod;
-      const total = sale.totalAmount.toNumber(); // Convert Decimal to number
+      const total = new Decimal(sale.totalAmount).toNumber();
 
       if (!salesByPaymentMethod[method]) {
         salesByPaymentMethod[method] = { method: method, total: 0 };
@@ -95,13 +123,16 @@ export async function GET(req: NextRequest) {
       salesByPaymentMethod[method].total += total;
     });
 
-    // Convert aggregated objects to arrays for easier consumption
     const productsReport = Object.values(salesByProduct);
     const paymentMethodsReport = Object.values(salesByPaymentMethod);
 
-    return NextResponse.json({ productsReport, paymentMethodsReport });
+    return NextResponse.json({
+      sales: serializableSales, // Individual sales records
+      productsReport,          // Aggregated by product
+      paymentMethodsReport,    // Aggregated by payment method
+    });
   } catch (error) {
-    console.error('Error fetching sales report:', error);
+    console.error('Error fetching sales:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

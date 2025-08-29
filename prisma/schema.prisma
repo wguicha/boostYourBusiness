@@ -29,6 +29,8 @@ model Business {
   products  Product[]
   // Relation to sales (one-to-many)
   sales     Sale[]
+  // Relation to combos (one-to-many)
+  combos    Combo[]
 }
 
 // NEW: Join table for the many-to-many relationship between Business and User
@@ -57,9 +59,45 @@ model Product {
 
   SaleItem    SaleItem[]
 
-  // ADDED: Relation to a Business
+  // Relation to a Business
   businessId  String
   business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // Relation to Combos
+  combos      ComboProduct[]
+}
+
+model Combo {
+  id          String   @id @default(cuid())
+  name        String
+  price       Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relation to Business
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // Relation to products in the combo
+  products    ComboProduct[]
+
+  // Relation to sale items
+  SaleItem    SaleItem[]
+}
+
+model ComboProduct {
+  id        String @id @default(cuid())
+  quantity  Int
+
+  // Relation to Combo
+  comboId   String
+  combo     Combo  @relation(fields: [comboId], references: [id], onDelete: Cascade)
+
+  // Relation to Product
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([comboId, productId])
 }
 
 model Sale {
@@ -84,8 +122,12 @@ model SaleItem {
   saleId    String
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict) // Use Restrict to prevent product deletion if it's in a sale
+  // An item can be either a product or a combo
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  comboId   String?
+  combo     Combo?   @relation(fields: [comboId], references: [id], onDelete: Restrict)
 }
 
 // NextAuth.js models

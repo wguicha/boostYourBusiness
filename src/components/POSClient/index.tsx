@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import Image from 'next/image';
@@ -8,24 +8,46 @@ import { useRouter } from 'next/navigation';
 import styles from './POSClient.module.css';
 import CartIcon from '@/components/CartIcon';
 import ProductCard from '@/components/ProductCard/index';
+import ComboCard from '@/components/ComboCard'; // Import the ComboCard component
 import Modal from '@/components/Modal'; // Import the Modal component
 import EditProductForm from '@/components/EditProductForm'; // Import the EditProductForm
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
 
-interface Product extends Omit<PrismaProduct, 'price'> {
-  price: string;
+interface Product {
+  id: string;
+  name: string;
+  price: string; // Price as string from client
+  quantity: number; // Available stock
+  type: 'product'; // Explicitly define type
+}
+
+interface ComboProductItem {
+  product: Product;
+  quantity: number; // Quantity of this product in the combo
+}
+
+interface Combo {
+  id: string;
+  name: string;
+  price: string; // Price as string from client
+  products: ComboProductItem[];
+  type: 'combo'; // Explicitly define type
 }
 
 interface CartItem {
-  product: Product;
-  quantity: number;
-  salePrice: number;
+  id: string; // ID of the product or combo
+  name: string; // Name of the product or combo
+  price: string; // Original price of the product or combo
+  quantity: number; // Quantity of this item in the cart
+  salePrice: number; // Editable sale price for this item
+  type: 'product' | 'combo'; // Type of the item
 }
 
 interface POSClientProps {
   products: Product[];
+  combos: Combo[]; // NEW: Add combos prop
   businessId: string;
 }
 
@@ -49,7 +71,7 @@ function SubmitButton() {
   );
 }
 
-export default function POSClient({ products, businessId }: POSClientProps) {
+export default function POSClient({ products, combos, businessId }: POSClientProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('Efectivo'); // Default to Efectivo
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -59,76 +81,83 @@ export default function POSClient({ products, businessId }: POSClientProps) {
 
   // State for the confirmation modal
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [selectedProductForSale, setSelectedProductForSale] = useState<Product | null>(null);
+  const [selectedItemForSale, setSelectedItemForSale] = useState<Product | Combo | null>(null); // Generalized
   const [modalQuantity, setModalQuantity] = useState(1);
-  const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Default to Efectivo
+  const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Use current cart payment method as default for modal
   const [modalSalePrice, setModalSalePrice] = useState<number | string>('');
 
   // State for the edit product modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (item: Product | Combo, type: 'product' | 'combo') => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find(item => item.product.id === product.id);
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.type === type);
       if (existingItem) {
-        return prevCart.map(item =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        return prevCart.map(cartItem =>
+          cartItem.id === item.id && cartItem.type === type ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
         );
       } else {
-        return [...prevCart, { product, quantity: 1, salePrice: parseFloat(product.price) }];
+        return [...prevCart, {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+          salePrice: parseFloat(item.price),
+          type: type,
+        }];
       }
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter(item => item.product.id !== productId));
+  const removeFromCart = (itemId: string, itemType: 'product' | 'combo') => {
+    setCart((prevCart) => prevCart.filter(item => !(item.id === itemId && item.type === itemType)));
   };
 
-  const updateCartQuantity = (productId: string, newQuantity: number) => {
+  const updateCartQuantity = (itemId: string, itemType: 'product' | 'combo', newQuantity: number) => {
     setCart((prevCart) => {
       if (newQuantity <= 0) {
-        return prevCart.filter(item => item.product.id !== productId);
+        return prevCart.filter(item => !(item.id === itemId && item.type === itemType));
       }
       return prevCart.map(item =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+        item.id === itemId && item.type === itemType ? { ...item, quantity: newQuantity } : item
       );
     });
   };
 
-  const incrementCartQuantity = (productId: string) => {
-    setCart(prevCart => prevCart.map(item => 
-      item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+  const incrementCartQuantity = (itemId: string, itemType: 'product' | 'combo') => {
+    setCart(prevCart => prevCart.map(item =>
+      item.id === itemId && item.type === itemType ? { ...item, quantity: item.quantity + 1 } : item
     ));
   };
 
-  const decrementCartQuantity = (productId: string) => {
+  const decrementCartQuantity = (itemId: string, itemType: 'product' | 'combo') => {
     setCart(prevCart => {
-      const itemToUpdate = prevCart.find(item => item.product.id === productId);
+      const itemToUpdate = prevCart.find(item => item.id === itemId && item.type === itemType);
       if (itemToUpdate && itemToUpdate.quantity <= 1) {
-        return prevCart.filter(item => item.product.id !== productId);
+        return prevCart.filter(item => !(item.id === itemId && item.type === itemType));
       }
-      return prevCart.map(item => 
-        item.product.id === productId ? { ...item, quantity: item.quantity - 1 } : item
+      return prevCart.map(item =>
+        item.id === itemId && item.type === itemType ? { ...item, quantity: item.quantity - 1 } : item
       );
     });
   };
 
-  const updateCartItemPrice = (productId: string, newPrice: string) => {
-    setCart(prevCart => prevCart.map(item => 
-      item.product.id === productId ? { ...item, salePrice: parseFloat(newPrice) || 0 } : item
+  const updateCartItemPrice = (itemId: string, itemType: 'product' | 'combo', newPrice: string) => {
+    setCart(prevCart => prevCart.map(item =>
+      item.id === itemId && item.type === itemType ? { ...item, salePrice: parseFloat(newPrice) || 0 } : item
     ));
   };
 
-  const incrementCartItemPrice = (productId: string) => {
-    setCart(prevCart => prevCart.map(item => 
-      item.product.id === productId ? { ...item, salePrice: item.salePrice + 0.5 } : item
+  const incrementCartItemPrice = (itemId: string, itemType: 'product' | 'combo') => {
+    setCart(prevCart => prevCart.map(item =>
+      item.id === itemId && item.type === itemType ? { ...item, salePrice: item.salePrice + 0.5 } : item
     ));
   };
 
-  const decrementCartItemPrice = (productId: string) => {
-    setCart(prevCart => prevCart.map(item => 
-      item.product.id === productId ? { ...item, salePrice: Math.max(0, item.salePrice - 0.5) } : item
+  const decrementCartItemPrice = (itemId: string, itemType: 'product' | 'combo') => {
+    setCart(prevCart => prevCart.map(item =>
+      item.id === itemId && item.type === itemType ? { ...item, salePrice: Math.max(0, item.salePrice - 0.5) } : item
     ));
   };
 
@@ -138,10 +167,11 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     setMessage(null);
     try {
       const saleItems = cart.map(item => ({
-        id: item.product.id,
-        name: item.product.name,
+        id: item.id,
+        name: item.name,
         price: item.salePrice.toString(), // Use the editable salePrice
         quantity: item.quantity,
+        type: item.type, // Pass the type
       }));
 
       await recordSale(saleItems, totalAmount, paymentMethod, businessId);
@@ -169,35 +199,41 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   };
 
   const handleAddToCartFromCard = (product: Product) => {
-    addToCart(product);
+    addToCart(product, 'product');
   };
 
-  const handleDirectSaleFromCard = (product: Product) => {
-    setSelectedProductForSale(product);
+  const handleAddToCartComboFromCard = (combo: Combo) => { // New function for combos
+    addToCart(combo, 'combo');
+  };
+
+  const handleDirectSaleFromCard = (item: Product | Combo, type: 'product' | 'combo') => { // Generalized
+    setSelectedItemForSale(item);
     setModalQuantity(1);
     setModalPaymentMethod(paymentMethod); // Use current cart payment method as default for modal
-    setModalSalePrice(parseFloat(product.price)); // Set initial price for editing
+    setModalSalePrice(parseFloat(item.price)); // Set initial price for editing
     setIsConfirmationModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsConfirmationModalOpen(false);
-    setSelectedProductForSale(null);
+    setSelectedItemForSale(null); // Use selectedItemForSale
   };
 
   const handleConfirmSale = async () => {
-    if (!selectedProductForSale) return;
+    if (!selectedItemForSale) return; // Use selectedItemForSale
 
     setIsSingleSalePending(true);
     setMessage(null);
     try {
       const salePrice = typeof modalSalePrice === 'string' ? parseFloat(modalSalePrice) : modalSalePrice;
-      await recordSingleSale(selectedProductForSale.id, modalPaymentMethod, businessId, modalQuantity, salePrice);
-      setMessage({ type: 'success', text: `Venta directa de ${selectedProductForSale.name} registrada!` });
+      // Pass type to recordSingleSale
+      await recordSingleSale(selectedItemForSale.id, modalPaymentMethod, businessId, modalQuantity, salePrice, selectedItemForSale.type);
+      setMessage({ type: 'success', text: `Venta directa de ${selectedItemForSale.name} registrada!` });
     } catch (error: any) {
       console.error('Error al registrar venta directa:', error);
       setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
-    } finally {
+    }
+  finally {
       setIsSingleSalePending(false);
       handleCloseModal();
     }
@@ -243,39 +279,47 @@ export default function POSClient({ products, businessId }: POSClientProps) {
             ) : (
               <div className={styles.cartItemsContainer}>
                 {cart.map((item) => (
-                  <div key={item.product.id} className={styles.cartItem}>
+                  <div key={`${item.id}-${item.type}`} className={styles.cartItem}>
                     <div className={styles.cartItemMainRow}>
-                      <span className={styles.cartItemName}>{item.product.name}</span>
+                      <span className={styles.cartItemName}>{item.name} {item.type === 'combo' && '(Combo)'}</span>
                     </div>
                     <div className={styles.cartItemSubRow}>
                       <div className={styles.priceControl}>
-                        <button type="button" onClick={() => decrementCartItemPrice(item.product.id)} className={styles.quantityButton}>-</button>
+                        <button type="button" onClick={() => decrementCartItemPrice(item.id, item.type)} className={styles.quantityButton}>-</button>
                         <div className={styles.priceInputContainer}>
                           <input
                             type="number"
                             step="0.01"
                             value={item.salePrice}
-                            onChange={(e) => updateCartItemPrice(item.product.id, e.target.value)}
+                            onChange={(e) => updateCartItemPrice(item.id, item.type, e.target.value)}
                             className={styles.quantityInput}
                           />
                           <span className={styles.currencySymbol}>€</span>
                         </div>
-                        <button type="button" onClick={() => incrementCartItemPrice(item.product.id)} className={styles.quantityButton}>+</button>
+                        <button type="button" onClick={() => incrementCartItemPrice(item.id, item.type)} className={styles.quantityButton}>+</button>
                       </div>
                       <div className={styles.quantityControl}>
-                        <button type="button" onClick={() => decrementCartQuantity(item.product.id)} className={styles.quantityButton}>-</button>
+                        <button type="button" onClick={() => decrementCartQuantity(item.id, item.type)} className={styles.quantityButton}>-</button>
                         <input
                           type="number"
                           min="1"
                           value={item.quantity}
-                          onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
+                          onChange={(e) => {
+                            const parsedQuantity = parseInt(e.target.value, 10); // Specify radix 10
+                            console.log('Input value:', e.target.value, 'Parsed quantity:', parsedQuantity);
+                            if (!isNaN(parsedQuantity)) { // Only update if it's a valid number
+                              updateCartQuantity(item.id, item.type, parsedQuantity);
+                            } else if (e.target.value === '') { // Allow clearing the input
+                              updateCartQuantity(item.id, item.type, 0); // Or handle as desired for empty
+                            }
+                          }}
                           className={styles.quantityInput}
                         />
-                        <button type="button" onClick={() => incrementCartQuantity(item.product.id)} className={styles.quantityButton}>+</button>
+                        <button type="button" onClick={() => incrementCartQuantity(item.id, item.type)} className={styles.quantityButton}>+</button>
                       </div>
                       <span className={styles.lineTotal}>${(item.salePrice * item.quantity).toFixed(2)}</span>
                       <button
-                        onClick={() => removeFromCart(item.product.id)}
+                        onClick={() => removeFromCart(item.id, item.type)}
                         className={styles.removeButton}
                       >
                         X
@@ -329,32 +373,61 @@ export default function POSClient({ products, businessId }: POSClientProps) {
               )}
             </button>
           )}
-          <div className={styles.productGrid}>
-            {products.map((product) => {
-              const productForCard = {
-                ...product,
-                price: parseFloat(product.price), // Convert price to number
-              };
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={productForCard}
-                  onEdit={handleEditProduct}
-                  onAddToCart={handleAddToCartFromCard}
-                  onDirectSale={handleDirectSaleFromCard}
-                />
-              );
-            })}
+          <div className={styles.productGrid}> {/* This will now be a container for sections */}
+            <div className={styles.productSection}>
+              <h2 className={styles.sectionTitle}>Productos</h2>
+              <div className={styles.productCardGrid}> {/* Nested grid for product cards */}
+                {products.map((product) => {
+                  const productForCard = {
+                    ...product,
+                    price: parseFloat(product.price), // Convert price to number
+                  };
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={productForCard}
+                      onEdit={handleEditProduct}
+                      onAddToCart={() => handleAddToCartFromCard(product)} // Updated call
+                      onDirectSale={() => handleDirectSaleFromCard(product, 'product')} // Updated call
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className={styles.comboSection}>
+              <h2 className={styles.sectionTitle}>Combos</h2>
+              <div className={styles.comboCardGrid}> {/* Nested grid for combo cards */}
+                {combos.map((combo) => {
+                  // Calculate available quantity for the combo
+                  const availableComboQuantity = combo.products.reduce((minQty, cp) => {
+                    const productInStock = products.find(p => p.id === cp.product.id);
+                    if (!productInStock || cp.quantity === 0) return 0; // If product not found or combo needs 0 of it, cannot make combo
+                    return Math.min(minQty, Math.floor(productInStock.quantity / cp.quantity));
+                  }, Infinity);
+
+                  return (
+                    <ComboCard
+                      key={combo.id}
+                      combo={combo}
+                      availableQuantity={availableComboQuantity === Infinity ? 0 : availableComboQuantity}
+                      onAddToCart={() => handleAddToCartComboFromCard(combo)} // New call
+                      onDirectSale={() => handleDirectSaleFromCard(combo, 'combo')} // New call
+                    />
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Confirmation Modal */}
-      {isConfirmationModalOpen && selectedProductForSale && (
+      {isConfirmationModalOpen && selectedItemForSale && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 className={styles.sectionTitle}>Confirmar Venta Directa</h2>
-            <p>Producto: <strong>{selectedProductForSale.name}</strong></p>
+            <p>Artículo: <strong>{selectedItemForSale.name} {selectedItemForSale.type === 'combo' && '(Combo)'}</strong></p>
             <div className={styles.modalForm}>
               <label htmlFor="quantity">Cantidad:</label>
               <div className={styles.quantityControl}>

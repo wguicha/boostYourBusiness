@@ -9,6 +9,7 @@ interface CartItem {
   name: string;
   price: string; // Price as string from client
   quantity: number; // Quantity in cart
+  type: 'product' | 'combo'; // NEW: To distinguish between product and combo
 }
 
 export async function recordSale(cartItems: CartItem[], totalAmount: number, paymentMethod: string, businessId: string) {
@@ -29,7 +30,9 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
         businessId: businessId, // Associate sale with the business
         items: {
           create: cartItems.map(item => ({
-            productId: item.id,
+            // Conditionally set productId or comboId based on item type
+            productId: item.type === 'product' ? item.id : null,
+            comboId: item.type === 'combo' ? item.id : null,
             quantity: item.quantity,
             priceAtSale: new Decimal(item.price),
           })),
@@ -39,28 +42,68 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
 
     // 2. Update product quantities
     for (const item of cartItems) {
-      const product = await tx.product.findFirst({
-        where: { 
-          id: item.id,
-          businessId: businessId
+      if (item.type === 'product') {
+        // Logic for individual products
+        const product = await tx.product.findFirst({
+          where: {
+            id: item.id,
+            businessId: businessId
+          }
+        });
+
+        if (!product) {
+          throw new Error(`Producto con ID ${item.id} no encontrado en este negocio.`);
         }
-      });
+        if (product.quantity < item.quantity) {
+          throw new Error(`Stock insuficiente para ${product.name}.`);
+        }
 
-      if (!product) {
-        throw new Error(`Producto con ID ${item.id} no encontrado en este negocio.`);
-      }
-      if (product.quantity < item.quantity) {
-        throw new Error(`Stock insuficiente para ${product.name}.`);
-      }
-
-      await tx.product.update({
-        where: { id: item.id }, // id is unique, no need for businessId here
-        data: {
-          quantity: {
-            decrement: item.quantity,
+        await tx.product.update({
+          where: { id: item.id },
+          data: {
+            quantity: {
+              decrement: item.quantity,
+            },
           },
-        },
-      });
+        });
+      } else if (item.type === 'combo') {
+        // Logic for combos
+        const combo = await tx.combo.findUnique({
+          where: { id: item.id },
+          include: {
+            products: {
+              include: {
+                product: true, // Get details of the actual product
+              },
+            },
+          },
+        });
+
+        if (!combo) {
+          throw new Error(`Combo con ID ${item.id} no encontrado.`);
+        }
+
+        // Check and decrement inventory for each product in the combo
+        for (const comboProduct of combo.products) {
+          const productInCombo = comboProduct.product;
+          const requiredQuantity = comboProduct.quantity * item.quantity; // Total quantity of this product needed for the sale
+
+          if (productInCombo.quantity < requiredQuantity) {
+            throw new Error(`Stock insuficiente para el producto '${productInCombo.name}' (parte del combo '${combo.name}').`);
+          }
+
+          await tx.product.update({
+            where: { id: productInCombo.id },
+            data: {
+              quantity: {
+                decrement: requiredQuantity,
+              },
+            },
+          });
+        }
+      } else {
+        throw new Error(`Tipo de artículo desconocido: ${item.type}`);
+      }
     }
   });
 
@@ -69,11 +112,12 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
 }
 
 export async function recordSingleSale(
-  productId: string, 
-  paymentMethod: string, 
-  businessId: string, 
+  itemId: string, // Can be productId or comboId
+  paymentMethod: string,
+  businessId: string,
   quantity: number,
-  salePrice?: number // Optional sale price
+  salePrice: number, // Sale price is now required for direct sale
+  itemType: 'product' | 'combo' // New parameter to distinguish
 ) {
   if (!businessId) {
     throw new Error('Business ID no proporcionado.');
@@ -83,45 +127,97 @@ export async function recordSingleSale(
   }
 
   await prisma.$transaction(async (tx) => {
-    const product = await tx.product.findFirst({
-      where: { 
-        id: productId,
-        businessId: businessId
-      },
-    });
+    let totalAmount: Decimal;
+    let saleItemData: { productId?: string; comboId?: string; quantity: number; priceAtSale: Decimal; }[];
 
-    if (!product) {
-      throw new Error('Producto no encontrado en este negocio.');
+    if (itemType === 'product') {
+      const product = await tx.product.findFirst({
+        where: {
+          id: itemId,
+          businessId: businessId
+        },
+      });
+
+      if (!product) {
+        throw new Error('Producto no encontrado en este negocio.');
+      }
+      if (product.quantity < quantity) {
+        throw new Error(`Stock insuficiente para ${product.name}.`);
+      }
+
+      const finalSalePrice = new Decimal(salePrice);
+      totalAmount = finalSalePrice.mul(quantity);
+
+      saleItemData = [{
+        productId: product.id,
+        quantity: quantity,
+        priceAtSale: finalSalePrice,
+      }];
+
+      // Decrement product quantity
+      await tx.product.update({
+        where: { id: itemId },
+        data: {
+          quantity: {
+            decrement: quantity,
+          },
+        },
+      });
+    } else if (itemType === 'combo') {
+      const combo = await tx.combo.findUnique({
+        where: { id: itemId },
+        include: {
+          products: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      if (!combo) {
+        throw new Error(`Combo con ID ${itemId} no encontrado.`);
+      }
+
+      // Check and decrement inventory for each product in the combo
+      for (const comboProduct of combo.products) {
+        const productInCombo = comboProduct.product;
+        const requiredQuantity = comboProduct.quantity * quantity; // Total quantity of this product needed for the sale
+
+        if (productInCombo.quantity < requiredQuantity) {
+          throw new Error(`Stock insuficiente para el producto '${productInCombo.name}' (parte del combo '${combo.name}').`);
+        }
+
+        await tx.product.update({
+          where: { id: productInCombo.id },
+          data: {
+            quantity: {
+              decrement: requiredQuantity,
+            },
+          },
+        });
+      }
+
+      const finalSalePrice = new Decimal(salePrice);
+      totalAmount = finalSalePrice.mul(quantity);
+
+      saleItemData = [{
+        comboId: combo.id,
+        quantity: quantity,
+        priceAtSale: finalSalePrice,
+      }];
+    } else {
+      throw new Error(`Tipo de artículo desconocido para venta directa: ${itemType}`);
     }
-    if (product.quantity < quantity) {
-      throw new Error(`Stock insuficiente para ${product.name}.`);
-    }
 
-    const finalSalePrice = salePrice !== undefined ? new Decimal(salePrice) : product.price;
-    const totalAmount = finalSalePrice.mul(quantity);
-
-    // 1. Create the Sale record for a single item
-    const sale = await tx.sale.create({
+    // Create the Sale record
+    await tx.sale.create({
       data: {
         totalAmount: totalAmount,
         paymentMethod,
-        businessId: businessId, // Associate sale with the business
+        businessId: businessId,
         items: {
-          create: [{
-            productId: product.id,
-            quantity: quantity,
-            priceAtSale: finalSalePrice,
-          }],
-        },
-      },
-    });
-
-    // 2. Decrement product quantity
-    await tx.product.update({
-      where: { id: productId }, // id is unique, no need for businessId here
-      data: {
-        quantity: {
-          decrement: quantity,
+          create: saleItemData,
         },
       },
     });

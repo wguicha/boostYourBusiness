@@ -99,110 +99,76 @@
   padding: 1rem;
 }
 
-/* New styles for sales list */
-.salesList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.reportGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
-.saleCard {
+.reportCard {
   background-color: #fff;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.saleHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-}
-
-.saleInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.saleDate {
+.reportSectionTitle {
+  font-size: 1.25rem;
   font-weight: bold;
+  margin-bottom: 1rem;
   color: #333;
 }
 
-.salePaymentMethod {
-  font-size: 0.9rem;
-  color: #666;
+.tableContainer {
+  overflow-x: auto;
 }
 
-.saleTotal {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.expandButton {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #007bff;
-  margin-left: 1rem;
-}
-
-.editButton {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #ffc107;
-  margin-left: 0.5rem;
-}
-
-.saleDetails {
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-}
-
-.detailsTitle {
-  font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.itemsTable {
+.table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-.itemsTable th,
-.itemsTable td {
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
+.tableHead {
+  background-color: #f2f2f2;
+}
+
+.tableTh {
+  padding: 0.75rem;
   text-align: left;
-}
-
-.itemsTable th {
-  background-color: #f8f8f8;
   font-weight: 600;
   color: #555;
+  border-bottom: 1px solid #ddd;
 }
 
-.itemsTable td {
+.tableThRight {
+  text-align: right;
+}
+
+.tableBody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tableTd {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
   color: #333;
 }
 
-.comboContents {
-  list-style: none;
-  padding-left: 1rem;
-  font-size: 0.85rem;
-  color: #777;
-  margin-top: 0.25rem;
+.tableTdName {
+  font-weight: 500;
 }
 
-.comboContents li {
-  margin-bottom: 0.1rem;
+.tableTdValue {
+  font-family: 'monospace';
+}
+
+.tableTdBold {
+  font-weight: bold;
+}
+
+.noData {
+  color: #6c757d;
+  text-align: center;
+  padding: 1rem;
 }

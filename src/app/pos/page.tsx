@@ -29,13 +29,48 @@ export default async function POSPage() {
     },
   });
 
+  const combos = await prisma.combo.findMany({
+    where: {
+      businessId: userBusiness.businessId,
+    },
+    include: {
+      products: {
+        include: {
+          product: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
   // Convert Decimal to string for client component serialization
   const serializableProducts = products.map(product => ({
     ...product,
     price: product.price.toString(),
+    type: 'product', // Add type property
+  }));
+
+  const serializableCombos = combos.map(combo => ({
+    ...combo,
+    price: combo.price.toString(),
+    products: combo.products.map(cp => ({
+      ...cp,
+      product: {
+        ...cp.product,
+        price: cp.product.price.toString(), // Ensure nested product prices are also strings
+        type: 'product', // Add type property to nested products in combo
+      },
+    })),
+    type: 'combo', // Add type property
   }));
 
   return (
-    <POSClient products={serializableProducts} businessId={userBusiness.businessId} />
+    <POSClient
+      products={serializableProducts}
+      combos={serializableCombos} // Pass combos as a prop
+      businessId={userBusiness.businessId}
+    />
   );
 }

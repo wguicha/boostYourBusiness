@@ -1,0 +1,231 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.formSection,
+.listSection {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input,
+.select,
+.quantityInput {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.select:focus,
+.quantityInput:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.productSelector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.productSelector .select {
+  flex-grow: 1;
+}
+
+.quantityInput {
+  width: 80px;
+  text-align: center;
+}
+
+.addButton,
+.submitButton,
+.removeButton {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.addButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.addButton:hover {
+  background-color: #218838;
+}
+
+.submitButton {
+  background-color: #007bff;
+  color: white;
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  background-color: #0056b3;
+}
+
+.removeButton {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.5rem 0.8rem;
+}
+
+.removeButton:hover {
+  background-color: #c82333;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.listItem {
+  background-color: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.comboHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.comboName {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.comboPrice {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.productList {
+  list-style: disc;
+  padding-left: 1.5rem;
+  color: #666;
+}
+
+.productList li {
+  margin-bottom: 0.25rem;
+}
+
+.editButton {
+  background-color: #ffc107; /* Yellow for edit */
+  color: #333;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #e0a800;
+}
+
+.cancelButton {
+  background-color: #6c757d; /* Gray for cancel */
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 1rem; /* Add some space */
+}
+
+.cancelButton:hover {
+  background-color: #5a6268;
+}
+
+.editFormSection {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem; /* Space from other sections */
+}
+
+.createComboButton {
+  background-color: #007bff;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 1.5rem; /* Space below the button */
+}
+
+.createComboButton:hover {
+  background-color: #0056b3;
+}
+
+@media (min-width: 768px) {
+  .container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap; /* Allow wrapping for multiple columns */
+  }
+
+  .formSection,
+  .listSection,
+  .editFormSection { /* Include editFormSection in media query */
+    flex: 1;
+    min-width: 300px; /* Ensure minimum width */
+    max-width: 45%; /* Adjust max-width for three columns */
+    margin-right: 2rem; /* Space between columns */
+    margin-bottom: 2rem; /* Space between rows */
+  }
+
+  .formSection:last-child,
+  .listSection:last-child,
+  .editFormSection:last-child {
+    margin-right: 0; /* No margin on the last item in a row */
+  }
+}
