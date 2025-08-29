@@ -10,7 +10,7 @@ export async function GET(req: Request, context: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const sale = await prisma.sale.findUnique({
@@ -83,7 +83,7 @@ export async function PUT(req: Request, context: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
   const body = await req.json();
   const { paymentMethod, items } = body; // items should be an array of { id, quantity, priceAtSale, productId?, comboId? }
 
@@ -242,7 +242,7 @@ export async function DELETE(req: Request, context: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const userBusiness = await prisma.businessUser.findFirst({

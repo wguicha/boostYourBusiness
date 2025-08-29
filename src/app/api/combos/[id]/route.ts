@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, context: any) { // Using 'any' as a 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params; // Corrected
 
   try {
     const combo = await prisma.combo.findUnique({
@@ -55,7 +55,7 @@ export async function PUT(req: NextRequest, context: any) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
   const body = await req.json();
   const { name, price, products } = body;
 
@@ -139,7 +139,7 @@ export async function DELETE(req: NextRequest, context: any) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params; // Corrected
 
   try {
     const userBusiness = await prisma.businessUser.findFirst({
