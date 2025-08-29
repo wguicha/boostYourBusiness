@@ -21,6 +21,7 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 interface CartItem {
   product: Product;
   quantity: number;
+  salePrice: number;
 }
 
 interface POSClientProps {
@@ -61,6 +62,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const [selectedProductForSale, setSelectedProductForSale] = useState<Product | null>(null);
   const [modalQuantity, setModalQuantity] = useState(1);
   const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Default to Efectivo
+  const [modalSalePrice, setModalSalePrice] = useState<number | string>('');
 
   // State for the edit product modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -74,7 +76,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
           item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        return [...prevCart, { product, quantity: 1 }];
+        return [...prevCart, { product, quantity: 1, salePrice: parseFloat(product.price) }];
       }
     });
   };
@@ -94,7 +96,43 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     });
   };
 
-  const totalAmount = cart.reduce((sum, item) => sum + parseFloat(item.product.price) * item.quantity, 0);
+  const incrementCartQuantity = (productId: string) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+    ));
+  };
+
+  const decrementCartQuantity = (productId: string) => {
+    setCart(prevCart => {
+      const itemToUpdate = prevCart.find(item => item.product.id === productId);
+      if (itemToUpdate && itemToUpdate.quantity <= 1) {
+        return prevCart.filter(item => item.product.id !== productId);
+      }
+      return prevCart.map(item => 
+        item.product.id === productId ? { ...item, quantity: item.quantity - 1 } : item
+      );
+    });
+  };
+
+  const updateCartItemPrice = (productId: string, newPrice: string) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.product.id === productId ? { ...item, salePrice: parseFloat(newPrice) || 0 } : item
+    ));
+  };
+
+  const incrementCartItemPrice = (productId: string) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.product.id === productId ? { ...item, salePrice: item.salePrice + 0.5 } : item
+    ));
+  };
+
+  const decrementCartItemPrice = (productId: string) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.product.id === productId ? { ...item, salePrice: Math.max(0, item.salePrice - 0.5) } : item
+    ));
+  };
+
+  const totalAmount = cart.reduce((sum, item) => sum + item.salePrice * item.quantity, 0);
 
   const handleRecordSale = async (formData: FormData) => {
     setMessage(null);
@@ -102,12 +140,13 @@ export default function POSClient({ products, businessId }: POSClientProps) {
       const saleItems = cart.map(item => ({
         id: item.product.id,
         name: item.product.name,
-        price: item.product.price,
+        price: item.salePrice.toString(), // Use the editable salePrice
         quantity: item.quantity,
       }));
 
       await recordSale(saleItems, totalAmount, paymentMethod, businessId);
       setCart([]);
+      setIsCartVisible(false); // Close cart on successful sale
       setMessage({ type: 'success', text: 'Venta registrada con éxito y stock actualizado!' });
     } catch (error: any) {
       console.error('Error al registrar la venta:', error);
@@ -137,6 +176,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     setSelectedProductForSale(product);
     setModalQuantity(1);
     setModalPaymentMethod(paymentMethod); // Use current cart payment method as default for modal
+    setModalSalePrice(parseFloat(product.price)); // Set initial price for editing
     setIsConfirmationModalOpen(true);
   };
 
@@ -151,7 +191,8 @@ export default function POSClient({ products, businessId }: POSClientProps) {
     setIsSingleSalePending(true);
     setMessage(null);
     try {
-      await recordSingleSale(selectedProductForSale.id, modalPaymentMethod, businessId, modalQuantity);
+      const salePrice = typeof modalSalePrice === 'string' ? parseFloat(modalSalePrice) : modalSalePrice;
+      await recordSingleSale(selectedProductForSale.id, modalPaymentMethod, businessId, modalQuantity, salePrice);
       setMessage({ type: 'success', text: `Venta directa de ${selectedProductForSale.name} registrada!` });
     } catch (error: any) {
       console.error('Error al registrar venta directa:', error);
@@ -168,6 +209,14 @@ export default function POSClient({ products, businessId }: POSClientProps) {
 
   const decrementQuantity = () => {
     setModalQuantity(prev => Math.max(1, prev - 1));
+  };
+
+  const incrementSalePrice = () => {
+    setModalSalePrice(prev => (parseFloat(String(prev)) + 0.5));
+  };
+
+  const decrementSalePrice = () => {
+    setModalSalePrice(prev => Math.max(0, parseFloat(String(prev)) - 0.5));
   };
 
   const toggleCart = () => {
@@ -215,16 +264,36 @@ export default function POSClient({ products, businessId }: POSClientProps) {
             <div className={styles.cartItemsContainer}>
               {cart.map((item) => (
                 <div key={item.product.id} className={styles.cartItem}>
-                  <span>{item.product.name} (x{item.quantity})</span>
-                  <div className={styles.cartItemControls}>
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
-                      className={styles.quantityInput}
-                    />
-                    <span>${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</span>
+                  <div className={styles.cartItemMainRow}>
+                    <span className={styles.cartItemName}>{item.product.name}</span>
+                  </div>
+                  <div className={styles.cartItemSubRow}>
+                    <div className={styles.priceControl}>
+                      <button type="button" onClick={() => decrementCartItemPrice(item.product.id)} className={styles.quantityButton}>-</button>
+                      <div className={styles.priceInputContainer}>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={item.salePrice}
+                          onChange={(e) => updateCartItemPrice(item.product.id, e.target.value)}
+                          className={styles.quantityInput}
+                        />
+                        <span className={styles.currencySymbol}>€</span>
+                      </div>
+                      <button type="button" onClick={() => incrementCartItemPrice(item.product.id)} className={styles.quantityButton}>+</button>
+                    </div>
+                    <div className={styles.quantityControl}>
+                      <button type="button" onClick={() => decrementCartQuantity(item.product.id)} className={styles.quantityButton}>-</button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
+                        className={styles.quantityInput}
+                      />
+                      <button type="button" onClick={() => incrementCartQuantity(item.product.id)} className={styles.quantityButton}>+</button>
+                    </div>
+                    <span className={styles.lineTotal}>${(item.salePrice * item.quantity).toFixed(2)}</span>
                     <button
                       onClick={() => removeFromCart(item.product.id)}
                       className={styles.removeButton}
@@ -298,6 +367,19 @@ export default function POSClient({ products, businessId }: POSClientProps) {
                   className={styles.quantityInput}
                 />
                 <button onClick={incrementQuantity} className={styles.quantityButton}>+</button>
+              </div>
+              <label htmlFor="salePrice">Precio de Venta:</label>
+              <div className={styles.quantityControl}> {/* Reusing quantityControl style for layout */}
+                <button type="button" onClick={decrementSalePrice} className={styles.quantityButton}>-</button>
+                <input
+                  type="number"
+                  id="salePrice"
+                  step="0.01"
+                  value={modalSalePrice}
+                  onChange={(e) => setModalSalePrice(e.target.value)}
+                  className={styles.quantityInput} // Reusing quantityInput style
+                />
+                <button type="button" onClick={incrementSalePrice} className={styles.quantityButton}>+</button>
               </div>
               <label>Método de Pago:</label>
               <div className={styles.paymentMethodLogos}>

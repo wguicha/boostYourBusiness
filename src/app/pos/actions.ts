@@ -68,7 +68,13 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
   revalidatePath('/products'); // Revalidate products page for inventory changes
 }
 
-export async function recordSingleSale(productId: string, paymentMethod: string, businessId: string, quantity: number) {
+export async function recordSingleSale(
+  productId: string, 
+  paymentMethod: string, 
+  businessId: string, 
+  quantity: number,
+  salePrice?: number // Optional sale price
+) {
   if (!businessId) {
     throw new Error('Business ID no proporcionado.');
   }
@@ -91,17 +97,20 @@ export async function recordSingleSale(productId: string, paymentMethod: string,
       throw new Error(`Stock insuficiente para ${product.name}.`);
     }
 
+    const finalSalePrice = salePrice !== undefined ? new Decimal(salePrice) : product.price;
+    const totalAmount = finalSalePrice.mul(quantity);
+
     // 1. Create the Sale record for a single item
     const sale = await tx.sale.create({
       data: {
-        totalAmount: product.price.mul(quantity),
+        totalAmount: totalAmount,
         paymentMethod,
         businessId: businessId, // Associate sale with the business
         items: {
           create: [{
             productId: product.id,
             quantity: quantity,
-            priceAtSale: product.price,
+            priceAtSale: finalSalePrice,
           }],
         },
       },

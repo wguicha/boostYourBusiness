@@ -211,22 +211,68 @@
 
 .cartItem {
   display: flex;
+  flex-direction: column; /* Arrange rows vertically */
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  gap: 8px; /* Add space between rows */
+}
+
+.priceControl {
+  display: flex;
+  align-items: center;
+}
+
+.priceInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencySymbol {
+  position: absolute;
+  right: 8px;
+  color: #888;
+  pointer-events: none; /* Make it non-interactive */
+}
+
+.priceInputContainer .quantityInput {
+  padding-right: 24px; /* Make space for the symbol */
+}
+
+.cartItemMainRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.cartItemSubRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+.cartItemName {
+  flex-grow: 1;
 }
 
 .cartItemControls {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .quantityInput {
-  width: 64px;
+  width: 60px;
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-right: 8px;
+  padding: 8px;
 }
 
 .removeButton {
@@ -375,4 +421,16 @@
   border-left: none;
   border-right: none;
   margin-right: 0;
+}
+
+/* Media Query for smaller screens */
+@media (max-width: 480px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px; /* Reduce gap for smaller screens */
+  }
+
+  .cartSummary {
+    width: 100%;
+  }
 }
