@@ -3,7 +3,9 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 // GET /api/combos/[id] - Fetches a single combo by ID
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+import { NextRequest, NextResponse } from "next/server"; // Ensure NextRequest is imported
+// ...
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
