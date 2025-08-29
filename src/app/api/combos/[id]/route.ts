@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 // GET /api/combos/[id] - Fethes a single combo by ID
 // ...
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: any) { // Using 'any' as a last resort workaround
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
 }
 
 // PUT /api/combos/[id] - Updates an existing combo
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -133,7 +133,7 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
 }
 
 // DELETE /api/combos/[id] - Deletes a combo
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
