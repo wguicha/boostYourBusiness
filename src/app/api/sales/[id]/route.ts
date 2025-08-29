@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { Decimal } from '@prisma/client/runtime/library';
 
 // GET /api/sales/[id] - Fetches a single sale by ID
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, context: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,7 +77,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PUT /api/sales/[id] - Updates an existing sale
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, context: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -236,7 +236,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // DELETE /api/sales/[id] - Deletes a sale
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, context: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
