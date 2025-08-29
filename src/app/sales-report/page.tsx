@@ -103,31 +103,33 @@ export default function SalesReportPage() {
           <div className={styles.reportCard}>
             <h2 className={styles.reportSectionTitle}>Ventas por Producto</h2>
             {report.productsReport.length > 0 ? (
-              <table className={styles.table}>
-                <thead className={styles.tableHead}>
-                  <tr>
-                    <th scope="col" className={styles.tableTh}>Producto</th>
-                    <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Cantidad</th>
-                    <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Total</th>
-                  </tr>
-                </thead>
-                <tbody className={styles.tableBody}>
-                  {report.productsReport.map((item, index) => (
-                    <tr key={index}>
-                      <td className={`${styles.tableTd} ${styles.tableTdName}`}>{item.name}</td>
-                      <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.quantity}</td>
-                      <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.total.toFixed(2)}€</td>
+              <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                  <thead className={styles.tableHead}>
+                    <tr>
+                      <th scope="col" className={styles.tableTh}>Producto</th>
+                      <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Cantidad</th>
+                      <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Total</th>
                     </tr>
-                  ))}
-                  <tr className={styles.tableHead}>
-                    <td className={`${styles.tableTd} ${styles.tableTdBold}`}>Total</td>
-                    <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}></td>
-                    <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}>
-                      {report.productsReport.reduce((sum, item) => sum + item.total, 0).toFixed(2)}€
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className={styles.tableBody}>
+                    {report.productsReport.map((item, index) => (
+                      <tr key={index}>
+                        <td className={`${styles.tableTd} ${styles.tableTdName}`}>{item.name}</td>
+                        <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.quantity}</td>
+                        <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.total.toFixed(2)}€</td>
+                      </tr>
+                    ))}
+                    <tr className={styles.tableHead}>
+                      <td className={`${styles.tableTd} ${styles.tableTdBold}`}>Total</td>
+                      <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}></td>
+                      <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}>
+                        {report.productsReport.reduce((sum, item) => sum + item.total, 0).toFixed(2)}€
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             ) : (
               <p className={styles.noData}>No hay datos de ventas por producto para el período seleccionado.</p>
             )}
@@ -136,28 +138,30 @@ export default function SalesReportPage() {
           <div className={styles.reportCard}>
             <h2 className={styles.reportSectionTitle}>Ventas por Medio de Pago</h2>
             {report.paymentMethodsReport.length > 0 ? (
-              <table className={styles.table}>
-                <thead className={styles.tableHead}>
-                  <tr>
-                    <th scope="col" className={styles.tableTh}>Medio de Pago</th>
-                    <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Total</th>
-                  </tr>
-                </thead>
-                <tbody className={styles.tableBody}>
-                  {report.paymentMethodsReport.map((item, index) => (
-                    <tr key={index}>
-                      <td className={`${styles.tableTd} ${styles.tableTdName}`}>{item.method}</td>
-                      <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.total.toFixed(2)}€</td>
+              <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                  <thead className={styles.tableHead}>
+                    <tr>
+                      <th scope="col" className={styles.tableTh}>Medio de Pago</th>
+                      <th scope="col" className={`${styles.tableTh} ${styles.tableThRight}`}>Total</th>
                     </tr>
-                  ))}
-                  <tr className={styles.tableHead}>
-                    <td className={`${styles.tableTd} ${styles.tableTdBold}`}>Total</td>
-                    <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}>
-                      {report.paymentMethodsReport.reduce((sum, item) => sum + item.total, 0).toFixed(2)}€
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className={styles.tableBody}>
+                    {report.paymentMethodsReport.map((item, index) => (
+                      <tr key={index}>
+                        <td className={`${styles.tableTd} ${styles.tableTdName}`}>{item.method}</td>
+                        <td className={`${styles.tableTd} ${styles.tableTdValue} ${styles.tableThRight}`}>{item.total.toFixed(2)}€</td>
+                      </tr>
+                    ))}
+                    <tr className={styles.tableHead}>
+                      <td className={`${styles.tableTd} ${styles.tableTdBold}`}>Total</td>
+                      <td className={`${styles.tableTd} ${styles.tableTdBold} ${styles.tableThRight}`}>
+                        {report.paymentMethodsReport.reduce((sum, item) => sum + item.total, 0).toFixed(2)}€
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             ) : (
               <p className={styles.noData}>No hay datos de ventas por medio de pago para el período seleccionado.</p>
             )}

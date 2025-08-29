@@ -55,7 +55,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const router = useRouter();
   const [isSingleSalePending, setIsSingleSalePending] = useState(false);
-  const [isCartVisible, setIsCartVisible] = useState(false);
+  const [isCartVisible, setIsCartVisible] = useState(false); // Default to hidden
 
   // State for the confirmation modal
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
@@ -224,10 +224,111 @@ export default function POSClient({ products, businessId }: POSClientProps) {
   };
 
   return (
-    <>
+    <div style={{ position: 'relative', height: '100%' }}>
       <div className={styles.container}>
+        {/* Cart Summary - Now conditionally rendered */}
+        {isCartVisible && (
+          <div className={styles.cartSummary}>
+            <button onClick={toggleCart} className={styles.closeCartButton}>
+              &times;
+            </button>
+            <h2 className={styles.sectionTitle}>Carrito de Compras</h2>
+            {message && (
+              <div className={message.type === 'success' ? styles.successMessage : styles.errorMessage}>
+                {message.text}
+              </div>
+            )}
+            {cart.length === 0 ? (
+              <p className={styles.emptyCartMessage}>El carrito está vacío.</p>
+            ) : (
+              <div className={styles.cartItemsContainer}>
+                {cart.map((item) => (
+                  <div key={item.product.id} className={styles.cartItem}>
+                    <div className={styles.cartItemMainRow}>
+                      <span className={styles.cartItemName}>{item.product.name}</span>
+                    </div>
+                    <div className={styles.cartItemSubRow}>
+                      <div className={styles.priceControl}>
+                        <button type="button" onClick={() => decrementCartItemPrice(item.product.id)} className={styles.quantityButton}>-</button>
+                        <div className={styles.priceInputContainer}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={item.salePrice}
+                            onChange={(e) => updateCartItemPrice(item.product.id, e.target.value)}
+                            className={styles.quantityInput}
+                          />
+                          <span className={styles.currencySymbol}>€</span>
+                        </div>
+                        <button type="button" onClick={() => incrementCartItemPrice(item.product.id)} className={styles.quantityButton}>+</button>
+                      </div>
+                      <div className={styles.quantityControl}>
+                        <button type="button" onClick={() => decrementCartQuantity(item.product.id)} className={styles.quantityButton}>-</button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
+                          className={styles.quantityInput}
+                        />
+                        <button type="button" onClick={() => incrementCartQuantity(item.product.id)} className={styles.quantityButton}>+</button>
+                      </div>
+                      <span className={styles.lineTotal}>${(item.salePrice * item.quantity).toFixed(2)}</span>
+                      <button
+                        onClick={() => removeFromCart(item.product.id)}
+                        className={styles.removeButton}
+                      >
+                        X
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={styles.paymentTotalContainer}>
+              <div className={styles.paymentMethodContainer}>
+                <label className={styles.paymentMethodLabel}>Método de Pago</label>
+                <div className={styles.paymentMethodLogos}>
+                  {paymentMethodsConfig.map((method) => (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(method.id)}
+                      className={`${styles.paymentMethodLogoButton} ${paymentMethod === method.id ? styles.paymentMethodLogoButtonSelected : ''}`}
+                    >
+                      <Image
+                        src={method.logoPath}
+                        alt={method.name}
+                        width={50}
+                        height={50}
+                        className={styles.paymentLogo}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.totalAmountContainer}>
+                <span>Total:</span>
+                <span>${totalAmount.toFixed(2)}</span>
+              </div>
+              <form action={handleRecordSale}>
+                <SubmitButton />
+              </form>
+            </div>
+          </div>
+        )}
+
         {/* Product Grid */}
         <div className={styles.productGridContainer}>
+          {/* Cart Toggle Button - Now sticky inside the grid container */}
+          {!isCartVisible && (
+            <button onClick={toggleCart} className={styles.cartToggleButton}>
+              <CartIcon className={styles.cartIcon} />
+              {cart.length > 0 && (
+                <span className={styles.cartItemCount}>{cart.reduce((total, item) => total + item.quantity, 0)}</span>
+              )}
+            </button>
+          )}
           <div className={styles.productGrid}>
             {products.map((product) => {
               const productForCard = {
@@ -246,107 +347,7 @@ export default function POSClient({ products, businessId }: POSClientProps) {
             })}
           </div>
         </div>
-
-        {/* Cart Summary */}
-        <div className={`${styles.cartSummary} ${isCartVisible ? styles.cartVisible : ''}`}>
-          <button onClick={toggleCart} className={styles.closeCartButton}>
-            &times;
-          </button>
-          <h2 className={styles.sectionTitle}>Carrito de Compras</h2>
-          {message && (
-            <div className={message.type === 'success' ? styles.successMessage : styles.errorMessage}>
-              {message.text}
-            </div>
-          )}
-          {cart.length === 0 ? (
-            <p className={styles.emptyCartMessage}>El carrito está vacío.</p>
-          ) : (
-            <div className={styles.cartItemsContainer}>
-              {cart.map((item) => (
-                <div key={item.product.id} className={styles.cartItem}>
-                  <div className={styles.cartItemMainRow}>
-                    <span className={styles.cartItemName}>{item.product.name}</span>
-                  </div>
-                  <div className={styles.cartItemSubRow}>
-                    <div className={styles.priceControl}>
-                      <button type="button" onClick={() => decrementCartItemPrice(item.product.id)} className={styles.quantityButton}>-</button>
-                      <div className={styles.priceInputContainer}>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={item.salePrice}
-                          onChange={(e) => updateCartItemPrice(item.product.id, e.target.value)}
-                          className={styles.quantityInput}
-                        />
-                        <span className={styles.currencySymbol}>€</span>
-                      </div>
-                      <button type="button" onClick={() => incrementCartItemPrice(item.product.id)} className={styles.quantityButton}>+</button>
-                    </div>
-                    <div className={styles.quantityControl}>
-                      <button type="button" onClick={() => decrementCartQuantity(item.product.id)} className={styles.quantityButton}>-</button>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateCartQuantity(item.product.id, parseInt(e.target.value))}
-                        className={styles.quantityInput}
-                      />
-                      <button type="button" onClick={() => incrementCartQuantity(item.product.id)} className={styles.quantityButton}>+</button>
-                    </div>
-                    <span className={styles.lineTotal}>${(item.salePrice * item.quantity).toFixed(2)}</span>
-                    <button
-                      onClick={() => removeFromCart(item.product.id)}
-                      className={styles.removeButton}
-                    >
-                      X
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className={styles.paymentTotalContainer}>
-            <div className={styles.paymentMethodContainer}>
-              <label className={styles.paymentMethodLabel}>Método de Pago</label>
-              <div className={styles.paymentMethodLogos}>
-                {paymentMethodsConfig.map((method) => (
-                  <button
-                    key={method.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(method.id)}
-                    className={`${styles.paymentMethodLogoButton} ${paymentMethod === method.id ? styles.paymentMethodLogoButtonSelected : ''}`}
-                  >
-                    <Image
-                      src={method.logoPath}
-                      alt={method.name}
-                      width={50}
-                      height={50}
-                      className={styles.paymentLogo}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.totalAmountContainer}>
-              <span>Total:</span>
-              <span>${totalAmount.toFixed(2)}</span>
-            </div>
-            <form action={handleRecordSale}>
-              <SubmitButton />
-            </form>
-          </div>
-        </div>
       </div>
-
-      {/* Cart Toggle Button */}
-      {!isCartVisible && (
-        <button onClick={toggleCart} className={styles.cartToggleButton}>
-          <CartIcon className={styles.cartIcon} />
-          {cart.length > 0 && (
-            <span className={styles.cartItemCount}>{cart.reduce((total, item) => total + item.quantity, 0)}</span>
-          )}
-        </button>
-      )}
 
       {/* Confirmation Modal */}
       {isConfirmationModalOpen && selectedProductForSale && (
@@ -419,6 +420,6 @@ export default function POSClient({ products, businessId }: POSClientProps) {
           <EditProductForm product={productToEdit} onClose={handleCloseEditModal} />
         </Modal>
       )}
-    </>
+    </div>
   );
 }

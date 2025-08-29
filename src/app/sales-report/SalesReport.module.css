@@ -6,78 +6,107 @@
 }
 
 .title {
-  font-size: 2.25rem; /* text-3xl */
-  font-weight: 700; /* font-bold */
-  margin-bottom: 1.5rem; /* mb-6 */
+  font-size: 2.25rem;
+  /* text-3xl */
+  font-weight: 700;
+  /* font-bold */
+  margin-bottom: 1.5rem;
+  /* mb-6 */
   text-align: center;
 }
 
 .filterCard {
   background-color: #fff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-  border-radius: 0.5rem; /* rounded-lg */
-  padding: 1.5rem; /* p-6 */
-  margin-bottom: 2rem; /* mb-8 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* shadow-md */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  padding: 1.5rem;
+  /* p-6 */
+  margin-bottom: 2rem;
+  /* mb-8 */
 }
 
 .filterTitle {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600; /* font-semibold */
-  margin-bottom: 1rem; /* mb-4 */
+  font-size: 1.25rem;
+  /* text-xl */
+  font-weight: 600;
+  /* font-semibold */
+  margin-bottom: 1rem;
+  /* mb-4 */
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1rem; /* gap-4 */
-  margin-bottom: 1rem; /* mb-4 */
+  gap: 1rem;
+  /* gap-4 */
+  margin-bottom: 1rem;
+  /* mb-4 */
 }
 
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* md:grid-cols-2 */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* md:grid-cols-2 */
   }
 }
 
 .label {
   display: block;
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #4b5563; /* text-gray-700 */
+  font-size: 0.875rem;
+  /* text-sm */
+  font-weight: 500;
+  /* font-medium */
+  color: #4b5563;
+  /* text-gray-700 */
 }
 
 .input {
-  margin-top: 0.25rem; /* mt-1 */
+  margin-top: 0.25rem;
+  /* mt-1 */
   display: block;
-  width: 100%;
-  border-radius: 0.375rem; /* rounded-md */
-  border-color: #d1d5db; /* border-gray-300 */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  width: 90%;
+  border-radius: 0.375rem;
+  /* rounded-md */
+  border-color: #d1d5db;
+  /* border-gray-300 */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* shadow-sm */
   padding: 0.5rem 0.75rem;
-  font-size: 0.875rem; /* sm:text-sm */
+  font-size: 0.875rem;
+  /* sm:text-sm */
 }
 
 .input:focus {
-  border-color: #4f46e5; /* focus:border-indigo-500 */
-  box-shadow: 0 0 0 1px #4f46e5; /* focus:ring-indigo-500 */
+  border-color: #4f46e5;
+  /* focus:border-indigo-500 */
+  box-shadow: 0 0 0 1px #4f46e5;
+  /* focus:ring-indigo-500 */
 }
 
 .button {
   width: 100%;
-  background-color: #2563eb; /* bg-blue-600 */
+  background-color: #2563eb;
+  /* bg-blue-600 */
   color: #fff;
-  font-weight: 700; /* font-bold */
-  padding: 0.5rem 1rem; /* py-2 px-4 */
-  border-radius: 0.375rem; /* rounded-md */
+  font-weight: 700;
+  /* font-bold */
+  padding: 0.5rem 1rem;
+  /* py-2 px-4 */
+  border-radius: 0.375rem;
+  /* rounded-md */
   outline: none;
 }
 
 .button:hover {
-  background-color: #1d4ed8; /* hover:bg-blue-700 */
+  background-color: #1d4ed8;
+  /* hover:bg-blue-700 */
 }
 
 .button:focus {
-  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 2px rgba(99, 102, 241, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 */
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 2px rgba(99, 102, 241, 0.5);
+  /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 */
 }
 
 .button:disabled {
@@ -86,17 +115,24 @@
 }
 
 .errorAlert {
-  background-color: #fee2e2; /* bg-red-100 */
-  border: 1px solid #ef4444; /* border-red-400 */
-  color: #b91c1c; /* text-red-700 */
-  padding: 0.75rem 1rem; /* px-4 py-3 */
-  border-radius: 0.25rem; /* rounded */
+  background-color: #fee2e2;
+  /* bg-red-100 */
+  border: 1px solid #ef4444;
+  /* border-red-400 */
+  color: #b91c1c;
+  /* text-red-700 */
+  padding: 0.75rem 1rem;
+  /* px-4 py-3 */
+  border-radius: 0.25rem;
+  /* rounded */
   position: relative;
-  margin-bottom: 1rem; /* mb-4 */
+  margin-bottom: 1rem;
+  /* mb-4 */
 }
 
 .errorStrong {
-  font-weight: 700; /* font-bold */
+  font-weight: 700;
+  /* font-bold */
 }
 
 .errorSpan {
@@ -112,46 +148,61 @@
 .reportGrid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 2rem; /* gap-8 */
+  gap: 2rem;
+  /* gap-8 */
 }
 
 @media (min-width: 1024px) {
   .reportGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* lg:grid-cols-2 */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* lg:grid-cols-2 */
   }
 }
 
 .reportCard {
   background-color: #fff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-  border-radius: 0.5rem; /* rounded-lg */
-  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* shadow-md */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  padding: 1.5rem;
+  /* p-6 */
 }
 
 .reportSectionTitle {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600; /* font-semibold */
-  margin-bottom: 1rem; /* mb-4 */
+  font-size: 1.25rem;
+  /* text-xl */
+  font-weight: 600;
+  /* font-semibold */
+  margin-bottom: 1rem;
+  /* mb-4 */
 }
 
 .table {
   min-width: 100%;
   border-collapse: collapse;
-  border-color: #e5e7eb; /* divide-gray-200 */
+  border-color: #e5e7eb;
+  /* divide-gray-200 */
 }
 
 .tableHead {
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: #f9fafb;
+  /* bg-gray-50 */
 }
 
 .tableTh {
-  padding: 0.75rem 1.5rem; /* px-6 py-3 */
+  padding: 0.75rem 1.5rem;
+  /* px-6 py-3 */
   text-align: left;
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 500; /* font-medium */
-  color: #6b7280; /* text-gray-500 */
+  font-size: 0.75rem;
+  /* text-xs */
+  font-weight: 500;
+  /* font-medium */
+  color: #6b7280;
+  /* text-gray-500 */
   text-transform: uppercase;
-  letter-spacing: 0.05em; /* tracking-wider */
+  letter-spacing: 0.05em;
+  /* tracking-wider */
 }
 
 .tableThRight {
@@ -160,29 +211,68 @@
 
 .tableBody {
   background-color: #fff;
-  border-color: #e5e7eb; /* divide-gray-200 */
+  border-color: #e5e7eb;
+  /* divide-gray-200 */
 }
 
 .tableTd {
-  padding: 1rem 1.5rem; /* px-6 py-4 */
+  padding: 1rem 1.5rem;
+  /* px-6 py-4 */
   white-space: nowrap;
-  font-size: 0.875rem; /* text-sm */
+  font-size: 0.875rem;
+  /* text-sm */
 }
 
 .tableTdName {
-  font-weight: 500; /* font-medium */
-  color: #111827; /* text-gray-900 */
+  font-weight: 500;
+  /* font-medium */
+  color: #111827;
+  /* text-gray-900 */
 }
 
 .tableTdValue {
-  color: #6b7280; /* text-gray-500 */
+  color: #6b7280;
+  /* text-gray-500 */
 }
 
 .tableTdBold {
-  font-weight: 700; /* font-bold */
-  color: #111827; /* text-gray-900 */
+  font-weight: 700;
+  /* font-bold */
+  color: #111827;
+  /* text-gray-900 */
 }
 
 .noData {
-  color: #4b5563; /* text-gray-600 */
+  color: #4b5563;
+  /* text-gray-600 */
+}
+
+.tableContainer {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scrolling on iOS */
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.875rem;
+    /* text-2xl */
+  }
+
+  .filterCard,
+  .reportCard {
+    padding: 1rem;
+    /* p-4 */
+  }
+
+  .tableTd,
+  .tableTh {
+    padding: 0.75rem;
+    /* px-3 py-3 */
+  }
+
+  .input {
+    min-width: 0;
+    /* Allow date input to shrink */
+  }
 }
