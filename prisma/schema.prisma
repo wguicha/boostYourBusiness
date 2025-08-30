@@ -16,6 +16,12 @@ enum Role {
   EMPLOYEE
 }
 
+enum ProductType {
+  PRINCIPAL
+  BEBIDA
+  ACOMPANAMIENTO
+}
+
 // NEW: Business model
 model Business {
   id        String   @id @default(cuid())
@@ -48,23 +54,24 @@ model BusinessUser {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
   description String?
   price       Decimal
   quantity    Int
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  type        ProductType @default(PRINCIPAL)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  SaleItem    SaleItem[]
+  SaleItem SaleItem[]
 
   // Relation to a Business
-  businessId  String
-  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   // Relation to Combos
-  combos      ComboProduct[]
+  combos ComboProduct[]
 }
 
 model Combo {

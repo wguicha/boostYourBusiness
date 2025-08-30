@@ -91,7 +91,13 @@ export default function ProductsPage() {
         {products.length === 0 ? (
           <p className="text-gray-500">No hay productos registrados.</p>
         ) : (
-          <ProductList products={products} onEditProduct={handleOpenEditModal} />
+          <ProductList 
+            products={products} 
+            onEdit={handleOpenEditModal} 
+            onAddToCart={() => {}} // Dummy function as it's not used here
+            onDirectSale={() => {}} // Dummy function as it's not used here
+            showActions={false} 
+          />
         )}
       </div>
 

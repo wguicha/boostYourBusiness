@@ -1,5 +1,7 @@
 'use client';
 
+import styles from './ProductList.module.css';
+
 import Image from "next/image";
 import { deleteProduct } from "@/app/products/actions";
 import { useRouter } from 'next/navigation';
@@ -15,46 +17,25 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 
 interface ProductListProps {
   products: Product[];
-  onEditProduct: (product: Product) => void; // New prop for editing
+  onEdit: (productId: string) => void;
+  onAddToCart: (product: any) => void;
+  onDirectSale: (product: any) => void;
+  showActions?: boolean;
 }
 
-export default function ProductList({ products, onEditProduct }: ProductListProps) {
-  const router = useRouter();
-
-  const handleEdit = (productId: string) => {
-    const productToEdit = products.find(p => p.id === productId);
-    if (productToEdit) {
-      onEditProduct(productToEdit);
-    }
-  };
-
-  const handleAddToCart = (product: any) => {
-    // Implement add to cart logic here
-    console.log('Add to cart:', product.name);
-  };
-
-  const handleDirectSale = (product: any) => {
-    // Implement direct sale logic here
-    console.log('Direct sale:', product.name);
-  };
-
+export default function ProductList({ products, onEdit, onAddToCart, onDirectSale, showActions }: ProductListProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {products.map((product) => {
-        const productForCard = {
-          ...product,
-          price: parseFloat(product.price), // Convert price to number
-        };
-        return (
-          <ProductCard
-            key={product.id}
-            product={productForCard}
-            onEdit={handleEdit}
-            onAddToCart={handleAddToCart}
-            onDirectSale={handleDirectSale}
-          />
-        );
-      })}
+    <div className={styles.productListGrid}>
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          onEdit={onEdit}
+          onAddToCart={onAddToCart}
+          onDirectSale={onDirectSale}
+          showActions={showActions}
+        />
+      ))}
     </div>
   );
 }

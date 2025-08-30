@@ -69,6 +69,14 @@ export default function EditProductForm({ product, onClose }: EditProductFormPro
           <input type="number" id="quantity" name="quantity" step="1" defaultValue={product.quantity} required className={styles.input} />
         </div>
       </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="type" className={styles.label}>Tipo de Producto</label>
+        <select id="type" name="type" defaultValue={product.type} required className={styles.input}>
+          <option value="PRINCIPAL">Principal</option>
+          <option value="BEBIDA">Bebida</option>
+          <option value="ACOMPANAMIENTO">Acompañamiento</option>
+        </select>
+      </div>
       <SubmitButton />
       <button type="button" onClick={onClose} className={styles.cancelButton}>
         Cancelar

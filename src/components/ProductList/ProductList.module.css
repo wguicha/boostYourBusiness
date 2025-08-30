@@ -62,12 +62,14 @@
   font-size: 0.875rem; /* text-sm */
 }
 
-.productActions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
 }
+
 
 .editButton {
   background-color: #007bff;

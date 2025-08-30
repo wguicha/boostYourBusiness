@@ -62,6 +62,15 @@ export default function AddProductForm({ onClose, onProductAdded }: AddProductFo
           <input type="number" id="quantity" name="quantity" step="1" required className={styles.input} />
         </div>
       </div>
+      <div className={styles.formGroup}>
+        <label htmlFor="type" className={styles.label}>Tipo de Producto</label>
+        <select id="type" name="type" required defaultValue="" className={styles.input}>
+          <option value="" disabled>Seleccione un tipo</option>
+          <option value="PRINCIPAL">Principal</option>
+          <option value="BEBIDA">Bebida</option>
+          <option value="ACOMPANAMIENTO">Acompañamiento</option>
+        </select>
+      </div>
       <SubmitButton />
       <button type="button" onClick={onClose} className={styles.cancelButton}>
         Cancelar

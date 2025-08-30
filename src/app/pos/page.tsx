@@ -24,9 +24,25 @@ export default async function POSPage() {
     where: {
       businessId: userBusiness.businessId,
     },
-    orderBy: {
-      quantity: 'desc',
-    },
+  });
+
+  // Define the desired sort order for product types
+  const typeSortOrder: Record<string, number> = {
+    'PRINCIPAL': 1,
+    'BEBIDA': 2,
+    'ACOMPANAMIENTO': 3,
+  };
+
+  // Sort products by type, then by name
+  products.sort((a, b) => {
+    const orderA = typeSortOrder[a.type] ?? 99;
+    const orderB = typeSortOrder[b.type] ?? 99;
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    return a.name.localeCompare(b.name);
   });
 
   const combos = await prisma.combo.findMany({

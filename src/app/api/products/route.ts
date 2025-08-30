@@ -23,9 +23,25 @@ export async function GET(req: NextRequest) {
       where: {
         businessId: userBusiness.businessId,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    });
+
+    // Define the desired sort order for product types
+    const typeSortOrder: Record<string, number> = {
+      'PRINCIPAL': 1,
+      'BEBIDA': 2,
+      'ACOMPANAMIENTO': 3,
+    };
+
+    // Sort products by type, then by name
+    products.sort((a, b) => {
+      const orderA = typeSortOrder[a.type] ?? 99;
+      const orderB = typeSortOrder[b.type] ?? 99;
+
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      return a.name.localeCompare(b.name);
     });
 
     // Convert Decimal to string for client component serialization

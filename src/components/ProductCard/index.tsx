@@ -14,9 +14,10 @@ interface ProductCardProps {
   onEdit: (productId: string) => void;
   onAddToCart: (product: any) => void;
   onDirectSale: (product: any) => void;
+  showActions?: boolean;
 }
 
-export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale }: ProductCardProps) {
+export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale, showActions = true }: ProductCardProps) {
   return (
     <div className={styles.productCardContainer}>
       <div className={styles.imageWrapper}>
@@ -52,18 +53,22 @@ export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale
         </div>
 
         {/* Action Buttons */}
-        <button
-          onClick={() => onAddToCart(product)}
-          className={styles.addToCartButton}
-        >
-          <FiShoppingCart size={14} />
-        </button>
-        <button
-          onClick={() => onDirectSale(product)}
-          className={styles.directSaleButton}
-        >
-          <FiDollarSign size={14} />
-        </button>
+        {showActions && (
+          <>
+            <button
+              onClick={() => onAddToCart(product)}
+              className={styles.addToCartButton}
+            >
+              <FiShoppingCart size={14} />
+            </button>
+            <button
+              onClick={() => onDirectSale(product)}
+              className={styles.directSaleButton}
+            >
+              <FiDollarSign size={14} />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Product Info */}
