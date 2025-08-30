@@ -136,7 +136,7 @@ export async function PUT(req: Request, context: any) {
                 where: { id: cp.productId },
                 data: { quantity: { increment: cp.quantity * oldItem.quantity } },
               });
-            }d
+            }
           }
         }
       }
