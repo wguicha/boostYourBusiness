@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react'; // Import useActionState from 'react'
 import { createBusinessForUser } from './actions';
 
 function SubmitButton() {
@@ -13,7 +14,7 @@ function SubmitButton() {
 }
 
 export default function OnboardingPage() {
-  const [state, formAction] = useFormState(createBusinessForUser, { message: '' });
+  const [state, formAction] = useActionState(createBusinessForUser, { message: '' });
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
