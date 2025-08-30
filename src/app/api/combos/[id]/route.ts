@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"; // Combined import
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Import PrismaClientKnownRequestError
 
 // GET /api/combos/[id] - Fethes a single combo by ID
 // ...
@@ -180,10 +181,10 @@ export async function DELETE(req: NextRequest, context: any) {
     });
 
     return NextResponse.json({ message: "Combo deleted successfully" });
-  } catch (error) {
+  } catch (error: unknown) { // Explicitly type as unknown
     console.error("Error deleting combo:", error);
     // Check for PrismaClientKnownRequestError for specific error codes like P2003 (Foreign key constraint failed)
-    if (error.code === 'P2003') {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2003') {
       return NextResponse.json(
         { error: "Cannot delete combo because it is part of existing sales." },
         { status: 409 } // Conflict
