@@ -49,7 +49,7 @@ export default async function POSPage() {
   const serializableProducts = products.map(product => ({
     ...product,
     price: product.price.toString(),
-    type: 'product', // Add type property
+    type: 'product' as const, // Explicitly cast to literal type
   }));
 
   const serializableCombos = combos.map(combo => ({
@@ -60,7 +60,7 @@ export default async function POSPage() {
       product: {
         ...cp.product,
         price: cp.product.price.toString(), // Ensure nested product prices are also strings
-        type: 'product', // Add type property to nested products in combo
+        type: 'product' as const, // Explicitly cast to literal type
       },
     })),
     type: 'combo', // Add type property
