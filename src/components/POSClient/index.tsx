@@ -21,6 +21,12 @@ interface Product {
   price: string; // Price as string from client
   quantity: number; // Available stock
   type: 'product'; // Explicitly define type
+  // Missing properties from Prisma Product model
+  businessId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  description: string | null;
+  imageUrl: string | null;
 }
 
 interface ComboProductItem {
