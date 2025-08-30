@@ -63,7 +63,7 @@ export default async function POSPage() {
         type: 'product' as const, // Explicitly cast to literal type
       },
     })),
-    type: 'combo', // Add type property
+    type: 'combo' as const, // Explicitly cast to literal type
   }));
 
   return (
