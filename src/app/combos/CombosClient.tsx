@@ -141,7 +141,7 @@ export default function CombosClient() {
   const handleEditClick = (combo: Combo) => {
     setEditingComboId(combo.id);
     setEditFormName(combo.name);
-    setEditFormPrice(combo.price);
+    setEditFormPrice(combo.price.toString()); // Convert number to string
     setEditFormProducts(combo.products.map(cp => ({ id: cp.product.id, quantity: cp.quantity })));
     setIsEditModalOpen(true); // Open edit modal
   };
