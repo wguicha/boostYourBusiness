@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './SalesReport.module.css';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale'; // Import Spanish locale
@@ -66,7 +66,7 @@ export default function SalesReportPage() {
   const [editFormItems, setEditFormItems] = useState<SaleItem[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]); // To populate product dropdowns in edit form
 
-  const fetchSales = async () => { // Renamed from fetchSalesReport
+  const fetchSales = useCallback(async () => { // Renamed from fetchSalesReport
     setLoading(true);
     setError(null);
     try {
@@ -91,9 +91,9 @@ export default function SalesReportPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
-  const fetchAllProducts = async () => {
+  const fetchAllProducts = useCallback(async () => {
     try {
       const response = await fetch('/api/products');
       if (!response.ok) {
@@ -105,13 +105,13 @@ export default function SalesReportPage() {
       console.error('Error fetching all products:', err);
       // Optionally set an error state for products if needed
     }
-  };
+  }, []);
 
   // Fetch sales on initial load and when dates change
   useEffect(() => {
     fetchSales();
     fetchAllProducts(); // Fetch all products once for the edit form
-  }, [startDate, endDate]);
+  }, [fetchSales, fetchAllProducts]);
 
   const toggleExpand = (saleId: string) => {
     setExpandedSaleId(expandedSaleId === saleId ? null : saleId);

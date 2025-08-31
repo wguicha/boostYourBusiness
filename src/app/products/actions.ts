@@ -44,7 +44,11 @@ export async function addProduct(data: FormData) {
                 reject(error);
                 return;
             }
-            resolve(result);
+            if (result) {
+                resolve(result);
+            } else {
+                reject(new Error("Cloudinary upload result is undefined."));
+            }
         }).end(buffer);
     });
     imageUrl = uploadResult.secure_url;
@@ -126,7 +130,11 @@ export async function updateProduct(productId: string, data: FormData) {
                 reject(error);
                 return;
             }
-            resolve(result);
+            if (result) {
+                resolve(result);
+            } else {
+                reject(new Error("Cloudinary upload result is undefined."));
+            }
         }).end(buffer);
     });
     imageUrl = uploadResult.secure_url;
