@@ -3,8 +3,21 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { Decimal } from '@prisma/client/runtime/library';
 
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
+interface SaleItemData {
+  productId: string | null;
+  comboId: string | null;
+  quantity: number;
+  priceAtSale: number | string;
+}
+
 // GET /api/sales/[id] - Fetches a single sale by ID
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,7 +90,7 @@ export async function GET(req: Request, context: any) {
 }
 
 // PUT /api/sales/[id] - Updates an existing sale
-export async function PUT(req: Request, context: any) {
+export async function PUT(req: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -180,7 +193,7 @@ export async function PUT(req: Request, context: any) {
         where: { saleId: id },
       });
 
-      const newSaleItemsData = items.map((item: any) => ({
+      const newSaleItemsData = items.map((item: SaleItemData) => ({
         saleId: id,
         productId: item.productId || null,
         comboId: item.comboId || null,
@@ -226,17 +239,18 @@ export async function PUT(req: Request, context: any) {
     });
 
     return NextResponse.json(updatedSaleWithDetails);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating sale:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
     return NextResponse.json(
-      { error: error.message || 'Something went wrong' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
 
 // DELETE /api/sales/[id] - Deletes a sale
-export async function DELETE(req: Request, context: any) {
+export async function DELETE(req: Request, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -299,10 +313,11 @@ export async function DELETE(req: Request, context: any) {
     });
 
     return NextResponse.json({ message: 'Sale deleted successfully' });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error deleting sale:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
     return NextResponse.json(
-      { error: error.message || 'Something went wrong' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

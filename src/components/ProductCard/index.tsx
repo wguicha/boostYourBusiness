@@ -3,17 +3,19 @@
 import { FiEdit, FiShoppingCart, FiDollarSign } from 'react-icons/fi';
 import styles from './ProductCard.module.css'; // Import CSS Module
 
+interface ProductForCard {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string | null;
+}
+
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    imageUrl?: string | null;
-  };
+  product: ProductForCard;
   onEdit: (productId: string) => void;
-  onAddToCart: (product: any) => void;
-  onDirectSale: (product: any) => void;
+  onAddToCart: (product: ProductForCard) => void;
+  onDirectSale: (product: ProductForCard) => void;
   showActions?: boolean;
 }
 

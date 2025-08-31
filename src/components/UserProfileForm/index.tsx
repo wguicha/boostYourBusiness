@@ -25,9 +25,9 @@ export default function UserProfileForm({ user }: UserProfileFormProps) {
       await updateUserProfile(user.id, formData);
       setMessage({ type: 'success', text: 'Perfil actualizado con éxito!' });
       await update(); // Refresh the session
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al actualizar el perfil:', error);
-      setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
+      setMessage({ type: 'error', text: `Error: ${error instanceof Error ? error.message : 'Error desconocido'}` });
     }
   };
 

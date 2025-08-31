@@ -18,8 +18,8 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 interface ProductListProps {
   products: Product[];
   onEdit: (productId: string) => void;
-  onAddToCart: (product: any) => void;
-  onDirectSale: (product: any) => void;
+  onAddToCart: (product: Product) => void;
+  onDirectSale: (product: Product) => void;
   showActions?: boolean;
 }
 

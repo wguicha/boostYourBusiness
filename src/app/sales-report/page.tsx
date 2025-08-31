@@ -46,6 +46,11 @@ interface Sale {
   items: SaleItem[];
 }
 
+interface PaymentMethodReport {
+  method: string;
+  total: string;
+}
+
 export default function SalesReportPage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -76,12 +81,12 @@ export default function SalesReportPage() {
         console.error('API response not OK:', response.status, response.statusText, errorData); // Debug log
         throw new Error(errorData.message || 'Failed to fetch sales data');
       }
-      const data = await response.json(); // Expecting an object with sales, productsReport, paymentMethodsReport
+      const data: { sales: Sale[]; productsReport?: Product[]; paymentMethodsReport?: PaymentMethodReport[] } = await response.json(); // Expecting an object with sales, productsReport, paymentMethodsReport
       console.log('Received sales data:', data); // Debug log
       setSales(data.sales); // Set sales from the 'sales' property of the response
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error in fetchSales:', err); // Debug log
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
       setSales([]); // Clear sales on error
     } finally {
       setLoading(false);
@@ -96,8 +101,9 @@ export default function SalesReportPage() {
       }
       const data: Product[] = await response.json();
       setAllProducts(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching all products:', err);
+      // Optionally set an error state for products if needed
     }
   };
 
@@ -115,7 +121,7 @@ export default function SalesReportPage() {
     setEditingSale(sale);
     setEditFormPaymentMethod(sale.paymentMethod);
     // Deep copy items to avoid direct mutation of original sale object
-    setEditFormItems(sale.items.map(item => ({
+    setEditFormItems(sale.items.map((item: SaleItem) => ({
       ...item,
       priceAtSale: item.priceAtSale.toString(), // Ensure string for input
       product: item.product ? { ...item.product, price: item.product.price.toString() } : undefined,
@@ -167,8 +173,9 @@ export default function SalesReportPage() {
 
       fetchSales(); // Refresh sales list
       handleCancelEdit(); // Close modal
-    } catch (err: any) {
-      alert(`Error al actualizar la venta: ${err.message}`);
+    } catch (err: unknown) {
+      console.error(`Error al actualizar la venta:`, err);
+      alert(`Error al actualizar la venta: ${err instanceof Error ? err.message : 'Error desconocido'}`);
     }
   };
 

@@ -1,17 +1,18 @@
-import { NextRequest, NextResponse } from "next/server"; // Combined import
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Import PrismaClientKnownRequestError
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-// GET /api/combos/[id] - Fethes a single combo by ID
-// ...
-export async function GET(req: NextRequest, context: any) { // Using 'any' as a last resort workaround
+
+
+// GET /api/combos/[id] - Fetches a single combo by ID
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = context.params; // Corrected
+  const { id } = params;
 
   try {
     const combo = await prisma.combo.findUnique({
@@ -29,7 +30,6 @@ export async function GET(req: NextRequest, context: any) { // Using 'any' as a 
       return NextResponse.json({ error: "Combo not found" }, { status: 404 });
     }
 
-    // Ensure the combo belongs to the user's business
     const userBusiness = await prisma.businessUser.findFirst({
       where: { userId: session.user.id },
       select: { businessId: true },
@@ -50,13 +50,13 @@ export async function GET(req: NextRequest, context: any) { // Using 'any' as a 
 }
 
 // PUT /api/combos/[id] - Updates an existing combo
-export async function PUT(req: NextRequest, context: any) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = context.params;
+  const { id } = params;
   const body = await req.json();
   const { name, price, products } = body;
 
@@ -83,7 +83,6 @@ export async function PUT(req: NextRequest, context: any) {
     }
 
     const updatedCombo = await prisma.$transaction(async (tx) => {
-      // 1. Update the Combo record
       const combo = await tx.combo.update({
         where: { id },
         data: {
@@ -92,12 +91,10 @@ export async function PUT(req: NextRequest, context: any) {
         },
       });
 
-      // 2. Delete existing ComboProduct records for this combo
       await tx.comboProduct.deleteMany({
         where: { comboId: id },
       });
 
-      // 3. Create new ComboProduct records
       const comboProductsData = products.map((p: { id: string; quantity: number }) => ({
         comboId: combo.id,
         productId: p.id,
@@ -111,7 +108,6 @@ export async function PUT(req: NextRequest, context: any) {
       return combo;
     });
 
-    // Refetch the updated combo with its relations to return it in the response
     const updatedComboWithProducts = await prisma.combo.findUnique({
         where: { id: updatedCombo.id },
         include: {
@@ -134,13 +130,13 @@ export async function PUT(req: NextRequest, context: any) {
 }
 
 // DELETE /api/combos/[id] - Deletes a combo
-export async function DELETE(req: NextRequest, context: any) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = context.params; // Corrected
+  const { id } = params;
 
   try {
     const userBusiness = await prisma.businessUser.findFirst({
@@ -161,29 +157,18 @@ export async function DELETE(req: NextRequest, context: any) {
     }
 
     await prisma.$transaction(async (tx) => {
-      // Delete associated SaleItem records first if any (due to onDelete: Restrict in SaleItem)
-      // This might not be strictly necessary if SaleItem.comboId is nullable and not restricted
-      // but it's safer to consider if a combo is part of a sale.
-      // For now, assuming onDelete: Restrict on SaleItem.combo means we can't delete a combo if it's in a sale.
-      // If SaleItem.comboId is set to onDelete: SetNull, then this step is not needed.
-      // Based on schema, it's Restrict, so we need to handle it or ensure no sales exist.
-      // For simplicity, we'll let Prisma throw an error if it's restricted and in a sale.
-
-      // Delete ComboProduct records first
       await tx.comboProduct.deleteMany({
         where: { comboId: id },
       });
 
-      // Then delete the Combo itself
       await tx.combo.delete({
         where: { id },
       });
     });
 
     return NextResponse.json({ message: "Combo deleted successfully" });
-  } catch (error: unknown) { // Explicitly type as unknown
+  } catch (error: unknown) {
     console.error("Error deleting combo:", error);
-    // Check for PrismaClientKnownRequestError for specific error codes like P2003 (Foreign key constraint failed)
     if (error instanceof PrismaClientKnownRequestError && error.code === 'P2003') {
       return NextResponse.json(
         { error: "Cannot delete combo because it is part of existing sales." },

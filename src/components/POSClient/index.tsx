@@ -18,10 +18,9 @@ import { Product as PrismaProduct } from '@prisma/client';
 interface Product {
   id: string;
   name: string;
-  price: string; // Price as string from client
+  price: number; // Price as number
   quantity: number; // Available stock
-  type: 'product'; // Explicitly define type
-  // Missing properties from Prisma Product model
+  type: 'PRINCIPAL' | 'BEBIDA' | 'ACOMPANAMIENTO'; // Explicitly define type based on Prisma
   businessId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -37,7 +36,7 @@ interface ComboProductItem {
 interface Combo {
   id: string;
   name: string;
-  price: string; // Price as string from client
+  price: number; // Price as number
   products: ComboProductItem[];
   type: 'combo'; // Explicitly define type
 }
@@ -45,7 +44,7 @@ interface Combo {
 interface CartItem {
   id: string; // ID of the product or combo
   name: string; // Name of the product or combo
-  price: string; // Original price of the product or combo
+  price: number; // Original price of the product or combo
   quantity: number; // Quantity of this item in the cart
   salePrice: number; // Editable sale price for this item
   type: 'product' | 'combo'; // Type of the item
@@ -90,7 +89,7 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
   const [selectedItemForSale, setSelectedItemForSale] = useState<Product | Combo | null>(null); // Generalized
   const [modalQuantity, setModalQuantity] = useState(1);
   const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Use current cart payment method as default for modal
-  const [modalSalePrice, setModalSalePrice] = useState<number | string>('');
+  const [modalSalePrice, setModalSalePrice] = useState<number>(0);
 
   // State for the edit product modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -175,18 +174,18 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
       const saleItems = cart.map(item => ({
         id: item.id,
         name: item.name,
-        price: item.salePrice.toString(), // Use the editable salePrice
+        price: item.salePrice.toString(), // Convert number to string for action
         quantity: item.quantity,
-        type: item.type, // Pass the type
+        type: item.type,
       }));
 
       await recordSale(saleItems, totalAmount, paymentMethod, businessId);
       setCart([]);
       setIsCartVisible(false); // Close cart on successful sale
       setMessage({ type: 'success', text: 'Venta registrada con éxito y stock actualizado!' });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al registrar la venta:', error);
-      setMessage({ type: 'error', text: `Error al registrar la venta: ${error.message || 'Error desconocido'}` });
+      setMessage({ type: 'error', text: `Error al registrar la venta: ${(error as Error).message || 'Error desconocido'}` });
     }
   };
 
@@ -231,13 +230,11 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
     setIsSingleSalePending(true);
     setMessage(null);
     try {
-      const salePrice = typeof modalSalePrice === 'string' ? parseFloat(modalSalePrice) : modalSalePrice;
-      // Pass type to recordSingleSale
-      await recordSingleSale(selectedItemForSale.id, modalPaymentMethod, businessId, modalQuantity, salePrice, selectedItemForSale.type);
+      await recordSingleSale(selectedItemForSale.id, modalPaymentMethod, businessId, modalQuantity, modalSalePrice.toString(), selectedItemForSale.type);
       setMessage({ type: 'success', text: `Venta directa de ${selectedItemForSale.name} registrada!` });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al registrar venta directa:', error);
-      setMessage({ type: 'error', text: `Error: ${error.message || 'Error desconocido'}` });
+      setMessage({ type: 'error', text: `Error: ${(error as Error).message || 'Error desconocido'}` });
     }
   finally {
       setIsSingleSalePending(false);
@@ -386,7 +383,6 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
                 {products.map((product) => {
                   const productForCard = {
                     ...product,
-                    price: parseFloat(product.price), // Convert price to number
                   };
                   return (
                     <ProductCard

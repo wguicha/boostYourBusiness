@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-export async function createBusinessForUser(prevState: any, formData: FormData) {
+export async function createBusinessForUser(prevState: { message: string } | undefined, formData: FormData) {
   const session = await auth();
   if (!session || !session.user || !session.user.id) {
     return { message: 'Usuario no autenticado.' };

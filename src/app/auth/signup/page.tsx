@@ -32,8 +32,9 @@ export default function SignUpPage() {
       } else {
         router.push('/products'); // Redirect to products page on successful login
       }
-    } catch (err: any) {
-      setError(err.message || 'Error al registrar el usuario.');
+    } catch (error: unknown) {
+      console.error('Error during signup:', error);
+      alert('Error during signup. Please try again.');
     }
   };
 

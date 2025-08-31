@@ -56,7 +56,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.name = user.name;
-        token.businessName = (user as any).businessName; // Add businessName to token
+        token.businessName = user.businessName; // Add businessName to token
       }
       return token;
     },
@@ -68,7 +68,7 @@ export const authConfig = {
         session.user.name = token.name as string;
       }
       if (token.businessName && session.user) {
-        (session.user as any).businessName = token.businessName; // Add businessName to session.user
+        session.user.businessName = token.businessName; // Add businessName to session.user
       }
       return session;
     },

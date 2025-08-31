@@ -40,13 +40,13 @@ export default function SummaryReportPage() { // Renamed component
         throw new Error(errorData.message || 'Failed to fetch report');
       }
       // Expecting an object with productsReport and paymentMethodsReport
-      const data: { productsReport: ProductReport[]; paymentMethodsReport: PaymentMethodReport[]; sales: any[] } = await response.json();
+      const data: { productsReport: ProductReport[]; paymentMethodsReport: PaymentMethodReport[]; } = await response.json();
       setReport({
         productsReport: data.productsReport,
         paymentMethodsReport: data.paymentMethodsReport,
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
       setReport(null);
     } finally {
       setLoading(false);
