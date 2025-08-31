@@ -3,19 +3,17 @@
 import { FiEdit, FiShoppingCart, FiDollarSign } from 'react-icons/fi';
 import styles from './ProductCard.module.css'; // Import CSS Module
 
-interface ProductForCard {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string | null;
+import { Product as PrismaProduct } from '@prisma/client';
+
+interface Product extends Omit<PrismaProduct, 'price'> {
+  price: string;
 }
 
 interface ProductCardProps {
-  product: ProductForCard;
+  product: Product;
   onEdit: (productId: string) => void;
-  onAddToCart: (product: ProductForCard) => void;
-  onDirectSale: (product: ProductForCard) => void;
+  onAddToCart: (product: Product) => void;
+  onDirectSale: (product: Product) => void;
   showActions?: boolean;
 }
 
@@ -37,7 +35,7 @@ export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale
         </div>
         <p className={styles.productPriceText}> {/* Replaced text-gray-600 */}
           <span className={styles.priceCircle}>
-            {product.price.toLocaleString('es-CO', { minimumFractionDigits: 0 })} €
+            {parseFloat(product.price).toLocaleString('es-CO', { minimumFractionDigits: 0 })} €
           </span>
         </p>
 

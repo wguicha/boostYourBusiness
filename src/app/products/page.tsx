@@ -64,9 +64,12 @@ export default function ProductsPage() {
     fetchProducts(); // Refresh products after adding
   };
 
-  const handleOpenEditModal = (product: Product) => {
-    setProductToEdit(product);
-    setIsEditModalOpen(true);
+  const handleOpenEditModal = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      setProductToEdit(product);
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleCloseEditModal = () => {

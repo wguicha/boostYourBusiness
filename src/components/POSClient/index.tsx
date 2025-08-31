@@ -15,17 +15,8 @@ import EditProductForm from '@/components/EditProductForm'; // Import the EditPr
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number; // Price as number
-  quantity: number; // Available stock
-  type: 'PRINCIPAL' | 'BEBIDA' | 'ACOMPANAMIENTO'; // Explicitly define type based on Prisma
-  businessId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string | null;
-  imageUrl: string | null;
+interface Product extends Omit<PrismaProduct, 'price'> {
+  price: string;
 }
 
 interface ComboProductItem {
@@ -36,7 +27,7 @@ interface ComboProductItem {
 interface Combo {
   id: string;
   name: string;
-  price: number; // Price as number
+  price: string; // Price as string
   products: ComboProductItem[];
   type: 'combo'; // Explicitly define type
 }
@@ -44,7 +35,7 @@ interface Combo {
 interface CartItem {
   id: string; // ID of the product or combo
   name: string; // Name of the product or combo
-  price: number; // Original price of the product or combo
+  price: string; // Original price of the product or combo
   quantity: number; // Quantity of this item in the cart
   salePrice: number; // Editable sale price for this item
   type: 'product' | 'combo'; // Type of the item
@@ -87,6 +78,7 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
   // State for the confirmation modal
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selectedItemForSale, setSelectedItemForSale] = useState<Product | Combo | null>(null); // Generalized
+  const [selectedItemType, setSelectedItemType] = useState<'product' | 'combo' | null>(null);
   const [modalQuantity, setModalQuantity] = useState(1);
   const [modalPaymentMethod, setModalPaymentMethod] = useState('Efectivo'); // Use current cart payment method as default for modal
   const [modalSalePrice, setModalSalePrice] = useState<number>(0);
@@ -213,6 +205,7 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
 
   const handleDirectSaleFromCard = (item: Product | Combo, type: 'product' | 'combo') => { // Generalized
     setSelectedItemForSale(item);
+    setSelectedItemType(type);
     setModalQuantity(1);
     setModalPaymentMethod(paymentMethod); // Use current cart payment method as default for modal
     setModalSalePrice(parseFloat(item.price)); // Set initial price for editing
@@ -222,15 +215,16 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
   const handleCloseModal = () => {
     setIsConfirmationModalOpen(false);
     setSelectedItemForSale(null); // Use selectedItemForSale
+    setSelectedItemType(null);
   };
 
   const handleConfirmSale = async () => {
-    if (!selectedItemForSale) return; // Use selectedItemForSale
+    if (!selectedItemForSale || !selectedItemType) return; 
 
     setIsSingleSalePending(true);
     setMessage(null);
     try {
-      await recordSingleSale(selectedItemForSale.id, modalPaymentMethod, businessId, modalQuantity, modalSalePrice.toString(), selectedItemForSale.type);
+      await recordSingleSale(selectedItemForSale.id, modalPaymentMethod, businessId, modalQuantity, modalSalePrice, selectedItemType);
       setMessage({ type: 'success', text: `Venta directa de ${selectedItemForSale.name} registrada!` });
     } catch (error: unknown) {
       console.error('Error al registrar venta directa:', error);
@@ -429,7 +423,7 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 className={styles.sectionTitle}>Confirmar Venta Directa</h2>
-            <p>Artículo: <strong>{selectedItemForSale.name} {selectedItemForSale.type === 'combo' && '(Combo)'}</strong></p>
+            <p>Artículo: <strong>{selectedItemForSale.name} {selectedItemType === 'combo' && '(Combo)'}</strong></p>
             <div className={styles.modalForm}>
               <label htmlFor="quantity">Cantidad:</label>
               <div className={styles.quantityControl}>
@@ -452,7 +446,7 @@ export default function POSClient({ products, combos, businessId }: POSClientPro
                   id="salePrice"
                   step="0.01"
                   value={modalSalePrice}
-                  onChange={(e) => setModalSalePrice(e.target.value)}
+                  onChange={(e) => setModalSalePrice(parseFloat(e.target.value))}
                   className={styles.quantityInput} // Reusing quantityInput style
                 />
                 <button type="button" onClick={incrementSalePrice} className={styles.quantityButton}>+</button>

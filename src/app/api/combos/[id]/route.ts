@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma } from "@prisma/client";
 
-
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
 
 // GET /api/combos/[id] - Fetches a single combo by ID
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const combo = await prisma.combo.findUnique({
@@ -36,7 +40,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
 
     if (!userBusiness || combo.businessId !== userBusiness.businessId) {
-      return NextResponse.json({ error: "Unauthorized access to combo" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Unauthorized access to combo" },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json(combo);
@@ -50,13 +57,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT /api/combos/[id] - Updates an existing combo
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
   const body = await req.json();
   const { name, price, products } = body;
 
@@ -71,7 +78,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     });
 
     if (!userBusiness) {
-      return NextResponse.json({ error: "User not associated with a business" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User not associated with a business" },
+        { status: 400 }
+      );
     }
 
     const existingCombo = await prisma.combo.findUnique({
@@ -79,7 +89,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     });
 
     if (!existingCombo || existingCombo.businessId !== userBusiness.businessId) {
-      return NextResponse.json({ error: "Combo not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Combo not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     const updatedCombo = await prisma.$transaction(async (tx) => {
@@ -95,11 +108,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         where: { comboId: id },
       });
 
-      const comboProductsData = products.map((p: { id: string; quantity: number }) => ({
-        comboId: combo.id,
-        productId: p.id,
-        quantity: p.quantity,
-      }));
+      const comboProductsData = products.map(
+        (p: { id: string; quantity: number }) => ({
+          comboId: combo.id,
+          productId: p.id,
+          quantity: p.quantity,
+        })
+      );
 
       await tx.comboProduct.createMany({
         data: comboProductsData,
@@ -109,14 +124,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     });
 
     const updatedComboWithProducts = await prisma.combo.findUnique({
-        where: { id: updatedCombo.id },
-        include: {
-            products: {
-                include: {
-                    product: true
-                }
-            }
-        }
+      where: { id: updatedCombo.id },
+      include: {
+        products: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(updatedComboWithProducts);
@@ -130,13 +145,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE /api/combos/[id] - Deletes a combo
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = context.params;
 
   try {
     const userBusiness = await prisma.businessUser.findFirst({
@@ -145,7 +160,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     });
 
     if (!userBusiness) {
-      return NextResponse.json({ error: "User not associated with a business" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User not associated with a business" },
+        { status: 400 }
+      );
     }
 
     const existingCombo = await prisma.combo.findUnique({
@@ -153,7 +171,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     });
 
     if (!existingCombo || existingCombo.businessId !== userBusiness.businessId) {
-      return NextResponse.json({ error: "Combo not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Combo not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     await prisma.$transaction(async (tx) => {
@@ -169,7 +190,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ message: "Combo deleted successfully" });
   } catch (error: unknown) {
     console.error("Error deleting combo:", error);
-    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2003') {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2003"
+    ) {
       return NextResponse.json(
         { error: "Cannot delete combo because it is part of existing sales." },
         { status: 409 } // Conflict
