@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { ProductType } from '@prisma/client';
+import cloudinary from '@/lib/cloudinary';
 
 export async function addProduct(data: FormData) {
   const session = await auth();
@@ -27,9 +28,26 @@ export async function addProduct(data: FormData) {
   const price = data.get('price') as string;
   const quantity = data.get('quantity') as string;
   const type = data.get('type') as ProductType;
+  const image = data.get('image') as File;
 
   if (!name || !price || !quantity || !type) {
     return { error: 'Missing required fields' };
+  }
+
+  let imageUrl: string | undefined;
+  if (image && image.size > 0) {
+    const arrayBuffer = await image.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+    const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        cloudinary.uploader.upload_stream({}, (error, result) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(result);
+        }).end(buffer);
+    });
+    imageUrl = uploadResult.secure_url;
   }
 
   try {
@@ -41,7 +59,7 @@ export async function addProduct(data: FormData) {
         quantity: parseInt(quantity, 10),
         type,
         businessId: business.id,
-        // TODO: Handle image upload
+        imageUrl,
       },
     });
 
@@ -92,22 +110,52 @@ export async function updateProduct(productId: string, data: FormData) {
   const price = data.get('price') as string;
   const quantity = data.get('quantity') as string;
   const type = data.get('type') as ProductType;
+  const image = data.get('image') as File;
 
   if (!productId || !name || !price || !quantity || !type) {
     return { error: 'Missing required fields' };
   }
 
+  let imageUrl: string | undefined;
+  if (image && image.size > 0) {
+    const arrayBuffer = await image.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+    const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        cloudinary.uploader.upload_stream({}, (error, result) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(result);
+        }).end(buffer);
+    });
+    imageUrl = uploadResult.secure_url;
+  }
+
   try {
-    // TODO: Verify that the product belongs to the user's business
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
+    const dataToUpdate: {
+        name: string;
+        description: string;
+        price: number;
+        quantity: number;
+        type: ProductType;
+        imageUrl?: string;
+    } = {
         name,
         description,
         price: parseFloat(price),
         quantity: parseInt(quantity, 10),
         type,
-      },
+    };
+
+    if (imageUrl) {
+        dataToUpdate.imageUrl = imageUrl;
+    }
+
+    // TODO: Verify that the product belongs to the user's business
+    await prisma.product.update({
+      where: { id: productId },
+      data: dataToUpdate,
     });
 
     revalidatePath('/products');
