@@ -1,8 +1,6 @@
 .productImageFrame {
   width: 120px;
-  /* Smaller fixed width */
   height: 120px;
-  /* Smaller fixed height */
   border-radius: 50%;
   overflow: hidden;
   position: relative;
@@ -15,149 +13,51 @@
   background-repeat: no-repeat;
 }
 
+.noImagePlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: #f0f0f0;
+}
+
+.noImageText {
+    font-size: 0.875rem;
+    color: #666;
+}
+
 .productCardContainer {
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  /* space-y-2 */
   position: relative;
-  /* Establish positioning context */
   z-index: 1;
-  /* Ensure it's above other content */
 }
 
 .imageWrapper {
   position: relative;
-  top: 5px;
   width: 120px;
-  /* Match productImageFrame */
   height: 120px;
-  /* Match productImageFrame */
-  align-content: center;
 }
 
 .stockIndicator {
   position: absolute;
-  top: 0px;
-  /* Half its height to overlap from top */
-  right: -15px;
-  /* Half its width to overlap from right */
+  top: -5px;
+  right: -5px;
   background-color: #dc3545;
-  /* Red background */
   color: white;
-  font-size: 1rem;
-  /* text-base */
-  font-weight: bold;
-  width: 35px;
-  /* w-auto */
-  height: 35px;
-  /* h-auto */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  z-index: 9999;
-}
-
-.productCard {
-  border: 1px solid #e0e0e0;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.productName {
-  font-weight: bold;
-  font-size: 1.125rem;
-  /* text-lg */
-  margin-top: 8px;
-}
-
-.productDescription {
-  color: #666;
-  margin-top: 4px;
-  min-height: 3em;
-  /* Example: enough for 3 lines of text */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-}
-
-.productDetails {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 16px;
-}
-
-.productPrice {
-  font-family: monospace;
-  font-size: 1.125rem;
-  /* text-lg */
-}
-
-.productStock {
   font-size: 0.875rem;
-  /* text-sm */
-}
-
-.productActions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  min-height: 40px;
-  /* Example: enough for buttons */
-}
-
-.editButton,
-.directSaleButton,
-.addToCartButton {
-  background-color: #87CEEB;
-  border: none; /* Removed border */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  font-weight: bold;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: black;
-  position: absolute;
+  border-radius: 50%;
   z-index: 10;
-}
-
-.editButton {
-  top: -10px;
-  left: -25px;
-}
-
-.directSaleButton {
-  top: 50px;
-  right: -25px;
-}
-
-.addToCartButton {
-  top: 100px;
-  right: 10px;
-}
-
-
-
-
-
-
-
-.deleteButton {
-  background-color: #dc3545;
-  color: white;
-  font-size: 0.875rem;
-  /* text-sm */
-  padding: 4px 12px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
+  border: 2px solid white;
 }
 
 .productInfo {
@@ -166,11 +66,8 @@
 }
 
 .productNameText {
-  position: relative;
-  top: 8px;
   font-weight: bold;
   min-height: 2.5em;
-  /* Example: enough for 2 lines of text */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
@@ -178,28 +75,68 @@
 
 .productPriceText {
   position: absolute;
-  top: calc(50% - 15px);
-  left: calc(50% - 67px);
-  transform: translate(-50%, 50%);
-  z-index: 10;
-  /* Ensure it's on top of the image */
-  color: #666;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
 .priceCircle {
   display: grid;
   place-items: center;
   width: 60px;
-  /* Adjust size as needed */
   height: 60px;
-  /* Adjust size as needed */
   border-radius: 50%;
-  background-color: #E5E5EA;
-  /* Body background color */
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
   font-weight: bold;
   font-size: 1.125rem;
-  /* text-lg */
   color: #000000;
-  /* Black text */
-  flex-grow: 0;
 }
+
+/* === Button Wrappers === */
+.controlsWrapper {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 50px;
+    z-index: 11;
+}
+
+.actionsWrapper {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 11;
+}
+
+/* === Base Button Styles === */
+.controlButton, .actionButton {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.controlButton:hover, .actionButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* === Button Color Variants === */
+.editButton { color: #0070f3; }
+.deleteButton { color: #dc3545; }
+.addToCartButton { color: #1a73e8; }
+.directSaleButton { color: #1e8e3e; }

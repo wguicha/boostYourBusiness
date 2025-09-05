@@ -6,22 +6,32 @@ import { revalidatePath } from 'next/cache';
 import { ProductType } from '@prisma/client';
 import cloudinary from '@/lib/cloudinary';
 
+// Helper function to verify user's membership in a business
+async function verifyUserMembership(userId: string, businessId: string) {
+  const membership = await prisma.businessUser.findUnique({
+    where: {
+      businessId_userId: { businessId, userId },
+      status: 'ACCEPTED',
+    },
+  });
+  return membership;
+}
+
 export async function addProduct(data: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: 'Not authenticated' };
   }
 
-  const businessUser = await prisma.businessUser.findFirst({
-    where: { userId: session.user.id },
-    select: { business: true },
-  });
-
-  if (!businessUser || !businessUser.business) {
-    return { error: 'User is not associated with a business' };
+  const businessId = data.get('businessId') as string;
+  if (!businessId) {
+    return { error: 'Business ID is required' };
   }
 
-  const { business } = businessUser;
+  const membership = await verifyUserMembership(session.user.id, businessId);
+  if (!membership) {
+    return { error: 'Forbidden: You are not a member of this business.' };
+  }
 
   const name = data.get('name') as string;
   const description = data.get('description') as string;
@@ -40,15 +50,9 @@ export async function addProduct(data: FormData) {
     const buffer = new Uint8Array(arrayBuffer);
     const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
         cloudinary.uploader.upload_stream({}, (error, result) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            if (result) {
-                resolve(result);
-            } else {
-                reject(new Error("Cloudinary upload result is undefined."));
-            }
+            if (error) return reject(error);
+            if (result) return resolve(result);
+            reject(new Error("Cloudinary upload result is undefined."));
         }).end(buffer);
     });
     imageUrl = uploadResult.secure_url;
@@ -62,7 +66,7 @@ export async function addProduct(data: FormData) {
         price: parseFloat(price),
         quantity: parseInt(quantity, 10),
         type,
-        businessId: business.id,
+        businessId: businessId, // Use the validated businessId
         imageUrl,
       },
     });
@@ -75,29 +79,30 @@ export async function addProduct(data: FormData) {
   }
 }
 
-export async function deleteProduct(productId: string) {
+export async function deleteProduct(productId: string, businessId: string) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Not authenticated');
   }
 
-  const userBusiness = await prisma.businessUser.findFirst({
-    where: { userId: session.user.id },
-  });
+  if (!businessId) {
+    throw new Error('Business ID is required');
+  }
 
-  if (!userBusiness) {
-    throw new Error('User is not associated with any business');
+  const membership = await verifyUserMembership(session.user.id, businessId);
+  if (!membership) {
+    throw new Error('Forbidden: You are not a member of this business.');
   }
 
   const result = await prisma.product.deleteMany({
     where: {
       id: productId,
-      businessId: userBusiness.businessId,
+      businessId: businessId, // Ensure deletion is scoped to the business
     },
   });
 
   if (result.count === 0) {
-    throw new Error('Product not found or user does not have permission');
+    throw new Error('Product not found in this business or permission denied');
   }
 
   revalidatePath('/products');
@@ -107,6 +112,16 @@ export async function updateProduct(productId: string, data: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: 'Not authenticated' };
+  }
+
+  const businessId = data.get('businessId') as string;
+  if (!businessId) {
+    return { error: 'Business ID is required' };
+  }
+
+  const membership = await verifyUserMembership(session.user.id, businessId);
+  if (!membership) {
+    return { error: 'Forbidden: You are not a member of this business.' };
   }
 
   const name = data.get('name') as string;
@@ -126,29 +141,16 @@ export async function updateProduct(productId: string, data: FormData) {
     const buffer = new Uint8Array(arrayBuffer);
     const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
         cloudinary.uploader.upload_stream({}, (error, result) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            if (result) {
-                resolve(result);
-            } else {
-                reject(new Error("Cloudinary upload result is undefined."));
-            }
+            if (error) return reject(error);
+            if (result) return resolve(result);
+            reject(new Error("Cloudinary upload result is undefined."));
         }).end(buffer);
     });
     imageUrl = uploadResult.secure_url;
   }
 
   try {
-    const dataToUpdate: {
-        name: string;
-        description: string;
-        price: number;
-        quantity: number;
-        type: ProductType;
-        imageUrl?: string;
-    } = {
+    const dataToUpdate: any = {
         name,
         description,
         price: parseFloat(price),
@@ -160,9 +162,11 @@ export async function updateProduct(productId: string, data: FormData) {
         dataToUpdate.imageUrl = imageUrl;
     }
 
-    // TODO: Verify that the product belongs to the user's business
-    await prisma.product.update({
-      where: { id: productId },
+    await prisma.product.updateMany({
+      where: { 
+        id: productId,
+        businessId: businessId, // Ensure update is scoped to the business
+      },
       data: dataToUpdate,
     });
 

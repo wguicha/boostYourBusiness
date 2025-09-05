@@ -1,29 +1,27 @@
 'use client';
 
 import styles from './ProductList.module.css';
-
-import Image from "next/image";
 import { deleteProduct } from "@/app/products/actions";
-import { useRouter } from 'next/navigation';
-import ProductCard from '@/components/ProductCard/index'; // Import ProductCard
+import ProductCard from '@/components/ProductCard/index';
 
-// Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
 
 interface Product extends Omit<PrismaProduct, 'price'> {
   price: string;
-  businessId: string; // Add businessId
+  businessId: string;
 }
 
 interface ProductListProps {
   products: Product[];
   onEdit: (productId: string) => void;
+  onDelete: (productId: string) => void;
   onAddToCart: (product: Product) => void;
   onDirectSale: (product: Product) => void;
-  showActions?: boolean;
+  showManagementActions?: boolean;
+  showSaleActions?: boolean;
 }
 
-export default function ProductList({ products, onEdit, onAddToCart, onDirectSale, showActions }: ProductListProps) {
+export default function ProductList({ products, onEdit, onDelete, onAddToCart, onDirectSale, showManagementActions, showSaleActions }: ProductListProps) {
   return (
     <div className={styles.productListGrid}>
       {products.map((product) => (
@@ -31,9 +29,11 @@ export default function ProductList({ products, onEdit, onAddToCart, onDirectSal
           key={product.id}
           product={product}
           onEdit={onEdit}
+          onDelete={onDelete}
           onAddToCart={onAddToCart}
           onDirectSale={onDirectSale}
-          showActions={showActions}
+          showManagementActions={showManagementActions}
+          showSaleActions={showSaleActions}
         />
       ))}
     </div>

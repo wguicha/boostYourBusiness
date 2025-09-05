@@ -1,207 +1,101 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import prisma from '@/lib/prisma';
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
+// Helper function to verify user's membership in a business
+async function verifyUserMembership(userId: string, businessId: string) {
+  const membership = await prisma.businessUser.findUnique({
+    where: {
+      businessId_userId: { businessId, userId },
+      status: 'ACCEPTED',
+    },
+  });
+  return membership;
 }
 
-// GET /api/combos/[id] - Fetches a single combo by ID
-export async function GET(req: NextRequest, context: RouteContext) {
+// PUT /api/combos/{id} - Updates an existing combo
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = context.params;
-
+  const comboId = params.id;
   try {
-    const combo = await prisma.combo.findUnique({
-      where: { id },
-      include: {
-        products: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
+    const body = await req.json();
+    const { name, price, products, businessId } = body;
 
-    if (!combo) {
-      return NextResponse.json({ error: "Combo not found" }, { status: 404 });
+    if (!businessId) {
+      return NextResponse.json({ error: "Business ID is required" }, { status: 400 });
     }
 
-    const userBusiness = await prisma.businessUser.findFirst({
-      where: { userId: session.user.id },
-      select: { businessId: true },
-    });
-
-    if (!userBusiness || combo.businessId !== userBusiness.businessId) {
-      return NextResponse.json(
-        { error: "Unauthorized access to combo" },
-        { status: 403 }
-      );
+    const membership = await verifyUserMembership(session.user.id, businessId);
+    if (!membership) {
+      return NextResponse.json({ error: "Forbidden: You are not a member of this business." }, { status: 403 });
     }
 
-    return NextResponse.json(combo);
-  } catch (error) {
-    console.error("Error fetching combo:", error);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-// PUT /api/combos/[id] - Updates an existing combo
-export async function PUT(req: NextRequest, context: RouteContext) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { id } = context.params;
-  const body = await req.json();
-  const { name, price, products } = body;
-
-  if (!name || !price || !products || !Array.isArray(products)) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
-  try {
-    const userBusiness = await prisma.businessUser.findFirst({
-      where: { userId: session.user.id },
-      select: { businessId: true },
-    });
-
-    if (!userBusiness) {
-      return NextResponse.json(
-        { error: "User not associated with a business" },
-        { status: 400 }
-      );
-    }
-
-    const existingCombo = await prisma.combo.findUnique({
-      where: { id },
-    });
-
-    if (!existingCombo || existingCombo.businessId !== userBusiness.businessId) {
-      return NextResponse.json(
-        { error: "Combo not found or unauthorized" },
-        { status: 404 }
-      );
+    if (!name || !price || !products || !Array.isArray(products)) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const updatedCombo = await prisma.$transaction(async (tx) => {
+      // First, update the combo details
       const combo = await tx.combo.update({
-        where: { id },
-        data: {
-          name,
-          price,
-        },
+        where: { id: comboId, businessId: businessId }, // Ensure combo belongs to the business
+        data: { name, price },
       });
 
-      await tx.comboProduct.deleteMany({
-        where: { comboId: id },
-      });
+      // Then, update the products within the combo
+      // Easiest way is to delete old ones and create new ones
+      await tx.comboProduct.deleteMany({ where: { comboId: comboId } });
 
-      const comboProductsData = products.map(
-        (p: { id: string; quantity: number }) => ({
-          comboId: combo.id,
-          productId: p.id,
-          quantity: p.quantity,
-        })
-      );
+      const comboProductsData = products.map((p: { id: string; quantity: number }) => ({
+        comboId: combo.id,
+        productId: p.id,
+        quantity: p.quantity,
+      }));
 
-      await tx.comboProduct.createMany({
-        data: comboProductsData,
-      });
+      await tx.comboProduct.createMany({ data: comboProductsData });
 
       return combo;
     });
 
-    const updatedComboWithProducts = await prisma.combo.findUnique({
-      where: { id: updatedCombo.id },
-      include: {
-        products: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json(updatedComboWithProducts);
+    return NextResponse.json(updatedCombo);
   } catch (error) {
-    console.error("Error updating combo:", error);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
+    console.error(`Error updating combo ${comboId}:`, error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 
-// DELETE /api/combos/[id] - Deletes a combo
-export async function DELETE(req: NextRequest, context: RouteContext) {
+// DELETE /api/combos/{id} - Deletes a combo
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = context.params;
+  const comboId = params.id;
+  // Since DELETE requests can't have a body in some clients, we get businessId from query params
+  const businessId = req.nextUrl.searchParams.get('businessId');
+
+  if (!businessId) {
+    return NextResponse.json({ error: "Business ID is required in query parameters" }, { status: 400 });
+  }
+
+  const membership = await verifyUserMembership(session.user.id, businessId);
+  if (!membership) {
+    return NextResponse.json({ error: "Forbidden: You are not a member of this business." }, { status: 403 });
+  }
 
   try {
-    const userBusiness = await prisma.businessUser.findFirst({
-      where: { userId: session.user.id },
-      select: { businessId: true },
+    // The schema is set to cascade delete, so ComboProducts will be deleted automatically.
+    await prisma.combo.delete({
+      where: { id: comboId, businessId: businessId }, // Ensure combo belongs to the business
     });
 
-    if (!userBusiness) {
-      return NextResponse.json(
-        { error: "User not associated with a business" },
-        { status: 400 }
-      );
-    }
-
-    const existingCombo = await prisma.combo.findUnique({
-      where: { id },
-    });
-
-    if (!existingCombo || existingCombo.businessId !== userBusiness.businessId) {
-      return NextResponse.json(
-        { error: "Combo not found or unauthorized" },
-        { status: 404 }
-      );
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.comboProduct.deleteMany({
-        where: { comboId: id },
-      });
-
-      await tx.combo.delete({
-        where: { id },
-      });
-    });
-
-    return NextResponse.json({ message: "Combo deleted successfully" });
-  } catch (error: unknown) {
-    console.error("Error deleting combo:", error);
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2003"
-    ) {
-      return NextResponse.json(
-        { error: "Cannot delete combo because it is part of existing sales." },
-        { status: 409 } // Conflict
-      );
-    }
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
+    return new NextResponse(null, { status: 204 }); // No Content
+  } catch (error) {
+    console.error(`Error deleting combo ${comboId}:`, error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

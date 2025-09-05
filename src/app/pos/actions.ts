@@ -69,7 +69,7 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
       } else if (item.type === 'combo') {
         // Logic for combos
         const combo = await tx.combo.findUnique({
-          where: { id: item.id },
+          where: { id: item.id, businessId: businessId },
           include: {
             products: {
               include: {
@@ -93,7 +93,7 @@ export async function recordSale(cartItems: CartItem[], totalAmount: number, pay
           }
 
           await tx.product.update({
-            where: { id: productInCombo.id },
+            where: { id: productInCombo.id, businessId: businessId },
             data: {
               quantity: {
                 decrement: requiredQuantity,
@@ -165,7 +165,7 @@ export async function recordSingleSale(
       });
     } else if (itemType === 'combo') {
       const combo = await tx.combo.findUnique({
-        where: { id: itemId },
+        where: { id: itemId, businessId: businessId },
         include: {
           products: {
             include: {
@@ -189,7 +189,7 @@ export async function recordSingleSale(
         }
 
         await tx.product.update({
-          where: { id: productInCombo.id },
+          where: { id: productInCombo.id, businessId: businessId },
           data: {
             quantity: {
               decrement: requiredQuantity,

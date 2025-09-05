@@ -2,8 +2,8 @@
 
 import { useFormStatus } from 'react-dom';
 import { updateProduct } from '@/app/products/actions';
-import { useRouter } from 'next/navigation';
 import styles from './EditProductForm.module.css';
+import { useBusiness } from '@/context/BusinessContext'; // Import useBusiness hook
 
 // Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
@@ -14,7 +14,7 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 
 interface EditProductFormProps {
   product: Product;
-  onClose: () => void; // Add onClose prop
+  onClose: () => void;
 }
 
 function SubmitButton() {
@@ -32,9 +32,15 @@ function SubmitButton() {
 }
 
 export default function EditProductForm({ product, onClose }: EditProductFormProps) {
-  const router = useRouter(); // Keep router for potential future use or if component is used elsewhere
+  const { activeBusiness } = useBusiness(); // Get active business
 
   const handleUpdate = async (formData: FormData) => {
+    if (!activeBusiness) {
+      alert('No active business selected. Please select a business first.');
+      return;
+    }
+    // The businessId is now added via a hidden input, so it will be in formData
+
     try {
       await updateProduct(product.id, formData);
       onClose(); // Close modal on successful update
@@ -46,6 +52,9 @@ export default function EditProductForm({ product, onClose }: EditProductFormPro
 
   return (
     <form action={handleUpdate} className={styles.formContainer}>
+      {/* Hidden input for businessId */}
+      {activeBusiness && <input type="hidden" name="businessId" value={activeBusiness.id} />}
+
       <h2 className={styles.formTitle}>Editar Producto</h2>
       <div className={styles.formGroup}>
         <label htmlFor="name" className={styles.label}>Nombre del Producto</label>

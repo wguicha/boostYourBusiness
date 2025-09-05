@@ -1,9 +1,9 @@
-import prisma from "@/lib/prisma";
 import POSClient from "@/components/POSClient/index";
 import { auth } from "@/auth";
-import { authConfig } from "@/auth.config";
 import { redirect } from "next/navigation";
 
+// This page is now a simple wrapper. 
+// All data fetching and logic is handled by the client component.
 export default async function POSPage() {
   const session = await auth();
 
@@ -11,80 +11,5 @@ export default async function POSPage() {
     redirect("/auth/signin");
   }
 
-  const userBusiness = await prisma.businessUser.findFirst({
-    where: { userId: session.user.id },
-    select: { businessId: true },
-  });
-
-  if (!userBusiness) {
-    redirect('/onboarding');
-  }
-
-  const products = await prisma.product.findMany({
-    where: {
-      businessId: userBusiness.businessId,
-    },
-  });
-
-  // Define the desired sort order for product types
-  const typeSortOrder: Record<string, number> = {
-    'PRINCIPAL': 1,
-    'BEBIDA': 2,
-    'ACOMPANAMIENTO': 3,
-  };
-
-  // Sort products by type, then by name
-  products.sort((a, b) => {
-    const orderA = typeSortOrder[a.type] ?? 99;
-    const orderB = typeSortOrder[b.type] ?? 99;
-
-    if (orderA !== orderB) {
-      return orderA - orderB;
-    }
-
-    return a.name.localeCompare(b.name);
-  });
-
-  const combos = await prisma.combo.findMany({
-    where: {
-      businessId: userBusiness.businessId,
-    },
-    include: {
-      products: {
-        include: {
-          product: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  // Convert Decimal to string for client component serialization
-  const serializableProducts = products.map(product => ({
-    ...product,
-    price: product.price.toString(),
-  }));
-
-  const serializableCombos = combos.map(combo => ({
-    ...combo,
-    price: combo.price.toString(),
-    products: combo.products.map(cp => ({
-      ...cp,
-      product: {
-        ...cp.product,
-        price: cp.product.price.toString(), // Ensure nested product prices are also strings
-      },
-    })),
-    type: 'combo' as const, // Explicitly cast to literal type
-  }));
-
-  return (
-    <POSClient
-      products={serializableProducts}
-      combos={serializableCombos} // Pass combos as a prop
-      businessId={userBusiness.businessId}
-    />
-  );
+  return <POSClient />;
 }

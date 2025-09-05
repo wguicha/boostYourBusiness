@@ -10,10 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NEW: Role definition for users within a business
+// Role definition for users within a business
 enum Role {
   OWNER
   EMPLOYEE
+}
+
+// Status for invitations
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
 }
 
 enum ProductType {
@@ -22,7 +28,7 @@ enum ProductType {
   ACOMPANAMIENTO
 }
 
-// NEW: Business model
+// Business model
 model Business {
   id        String   @id @default(cuid())
   name      String
@@ -39,13 +45,14 @@ model Business {
   combos    Combo[]
 }
 
-// NEW: Join table for the many-to-many relationship between Business and User
+// Join table for the many-to-many relationship between Business and User
 model BusinessUser {
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   role       Role     @default(OWNER)
+  status     InvitationStatus @default(ACCEPTED)
 
   assignedAt DateTime @default(now())
   assignedBy String? // Optional: to track who assigned the user
@@ -66,7 +73,7 @@ model Product {
 
   SaleItem SaleItem[]
 
-  // Relation to a Business
+  // Relation to a Business (now required)
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
@@ -81,7 +88,7 @@ model Combo {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relation to Business
+  // Relation to Business (now required)
   businessId  String
   business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
@@ -116,7 +123,7 @@ model Sale {
 
   items         SaleItem[]
 
-  // ADDED: Relation to a Business
+  // ADDED: Relation to a Business (now required)
   businessId    String
   business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }

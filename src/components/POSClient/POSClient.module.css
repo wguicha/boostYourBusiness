@@ -53,7 +53,7 @@
 }
 
 .cartToggleButton {
-  position: sticky;
+  position: fixed;
   /* Changed from fixed to sticky */
   bottom: 20px;
   left: 20px;

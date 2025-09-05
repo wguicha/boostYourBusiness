@@ -3,6 +3,7 @@
 import { useFormStatus } from 'react-dom';
 import { addProduct } from '@/app/products/actions';
 import styles from './AddProductForm.module.css';
+import { useBusiness } from '@/context/BusinessContext'; // Import useBusiness hook
 
 interface AddProductFormProps {
   onClose: () => void;
@@ -24,13 +25,22 @@ function SubmitButton() {
 }
 
 export default function AddProductForm({ onClose, onProductAdded }: AddProductFormProps) {
+  const { activeBusiness } = useBusiness(); // Get active business
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
     const formData = new FormData(event.currentTarget);
+
+    if (!activeBusiness) {
+      alert('No active business selected. Please select a business first.');
+      return;
+    }
+    // The businessId is now added via a hidden input, so it will be in formData
+
     try {
       await addProduct(formData);
-      onProductAdded(); // Notify parent that product was added
-      onClose(); // Close modal on successful add
+      onProductAdded();
+      onClose();
     } catch (error) {
       console.error('Error al agregar el producto:', error);
       alert('Error al agregar el producto.');
@@ -39,6 +49,9 @@ export default function AddProductForm({ onClose, onProductAdded }: AddProductFo
 
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
+      {/* Hidden input for businessId */}
+      {activeBusiness && <input type="hidden" name="businessId" value={activeBusiness.id} />}
+
       <h2 className={styles.formTitle}>Agregar Nuevo Producto</h2>
       <div className={styles.formGroup}>
         <label htmlFor="name" className={styles.label}>Nombre del Producto</label>

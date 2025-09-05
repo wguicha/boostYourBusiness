@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useBusiness } from '@/context/BusinessContext';
+import { deleteProduct } from '@/app/products/actions'; // Import deleteProduct action
 import AddProductForm from "@/components/AddProductForm";
 import EditProductForm from "@/components/EditProductForm";
 import ProductList from "@/components/ProductList";
 import Modal from "@/components/Modal";
-
-// Import Product type from Prisma client, but override price to be string
 import { Product as PrismaProduct } from '@prisma/client';
 
 interface Product extends Omit<PrismaProduct, 'price'> {
@@ -15,31 +14,27 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 }
 
 export default function ProductsPage() {
+  const { activeBusiness, loading: businessLoading } = useBusiness();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
   const fetchProducts = useCallback(async () => {
+    if (!activeBusiness) {
+      setProducts([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      // This fetch will hit a new API route we need to create or adapt
-      // For now, let's assume we can fetch from a direct API endpoint
-      // In a real app, you'd likely have an API route like /api/products
-      // For this example, we'll simulate fetching from the server component's data
-      // This part needs to be properly implemented with a real API call
-      // For now, we'll just use a placeholder or assume data is passed initially
-      // This component was originally a Server Component, so direct data fetching was implicit.
-      // Now as a Client Component, we need an explicit way to get data.
-      // I will assume there is an API endpoint `/api/products` that returns the products.
-      const response = await fetch('/api/products');
+      const response = await fetch(`/api/products?businessId=${activeBusiness.id}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error('Failed to fetch products for the selected business');
       }
       const data = await response.json();
       setProducts(data);
@@ -52,7 +47,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeBusiness]);
 
   useEffect(() => {
     fetchProducts();
@@ -61,7 +56,7 @@ export default function ProductsPage() {
   const handleOpenAddModal = () => setIsAddModalOpen(true);
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
-    fetchProducts(); // Refresh products after adding
+    fetchProducts();
   };
 
   const handleOpenEditModal = (productId: string) => {
@@ -75,10 +70,36 @@ export default function ProductsPage() {
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setProductToEdit(null);
-    fetchProducts(); // Refresh products after editing
+    fetchProducts();
   };
 
-  if (loading) return <div className="container mx-auto p-4">Cargando productos...</div>;
+  const handleDeleteProduct = async (productId: string) => {
+    if (!activeBusiness) {
+      alert('Cannot delete product without an active business.');
+      return;
+    }
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteProduct(productId, activeBusiness.id);
+        fetchProducts(); // Refresh the list after deletion
+      } catch (err) {
+        alert('Failed to delete product.');
+        console.error(err);
+      }
+    }
+  };
+
+  if (businessLoading || loading) return <div className="container mx-auto p-4">Cargando...</div>;
+  
+  if (!activeBusiness) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <h1 className="text-2xl font-bold mb-4">Gestión de Productos</h1>
+        <p className="text-gray-500">Por favor, selecciona un negocio o crea uno nuevo para empezar.</p>
+      </div>
+    );
+  }
+  
   if (error) return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
 
   return (
@@ -96,14 +117,16 @@ export default function ProductsPage() {
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Lista de Productos</h2>
         {products.length === 0 ? (
-          <p className="text-gray-500">No hay productos registrados.</p>
+          <p className="text-gray-500">No hay productos registrados para este negocio.</p>
         ) : (
           <ProductList 
             products={products} 
             onEdit={handleOpenEditModal} 
-            onAddToCart={() => {}} // Dummy function as it's not used here
-            onDirectSale={() => {}} // Dummy function as it's not used here
-            showActions={false} 
+            onDelete={handleDeleteProduct} // Pass the delete handler
+            onAddToCart={() => {}} // Dummy function
+            onDirectSale={() => {}} // Dummy function
+            showManagementActions={true}
+            showSaleActions={false}
           />
         )}
       </div>

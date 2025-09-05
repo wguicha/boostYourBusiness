@@ -45,9 +45,11 @@ export default function UserDropdown() {
         <div className={styles.dropdownMenu}>
           <p className={styles.dropdownItem}>Hola, {user?.name || user?.email}!</p>
           {user?.email && <p className={styles.dropdownItem}>{user.email}</p>}
-          {user?.businessName && <p className={styles.dropdownItem}>({user.businessName})</p>}
           <Link href="/profile" className={styles.dropdownItem} onClick={() => setIsOpen(false)}>
             Mi Perfil
+          </Link>
+          <Link href="/businesses" className={styles.dropdownItem} onClick={() => setIsOpen(false)}>
+            Mis Negocios
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: '/auth/signin' })}

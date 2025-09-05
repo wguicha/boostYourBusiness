@@ -1,32 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../lib/prisma';
-import { auth } from '../../../auth';
-import { Decimal } from '@prisma/client/runtime/library'; // Import Decimal
+import prisma from '@/lib/prisma';
+import { auth } from '@/auth';
+import { Decimal } from '@prisma/client/runtime/library';
+
+// Helper function to verify user's membership in a business
+async function verifyUserMembership(userId: string, businessId: string) {
+  const membership = await prisma.businessUser.findUnique({
+    where: {
+      businessId_userId: { businessId, userId },
+      status: 'ACCEPTED',
+    },
+  });
+  return membership;
+}
 
 export async function GET(req: NextRequest) {
   const session = await auth();
-
-  if (!session || !session.user || !session.user.id) {
+  if (!session?.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const userWithBusinesses = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      businesses: {
-        select: { businessId: true },
-        take: 1,
-      },
-    },
-  });
-
-  const businessId = userWithBusinesses?.businesses[0]?.businessId;
-
+  const { searchParams } = new URL(req.url);
+  const businessId = searchParams.get('businessId');
   if (!businessId) {
-    return NextResponse.json({ message: 'Business not found for user' }, { status: 404 });
+    return NextResponse.json({ message: 'Business ID is required' }, { status: 400 });
   }
 
-  const { searchParams } = new URL(req.url);
+  const membership = await verifyUserMembership(session.user.id, businessId);
+  if (!membership) {
+    return NextResponse.json({ message: 'Forbidden: You are not a member of this business.' }, { status: 403 });
+  }
+
   const startDateParam = searchParams.get('startDate');
   const endDateParam = searchParams.get('endDate');
 
@@ -35,18 +39,18 @@ export async function GET(req: NextRequest) {
 
   if (startDateParam) {
     startDate = new Date(startDateParam);
-    startDate.setUTCHours(0, 0, 0, 0); // Start of the day
+    startDate.setUTCHours(0, 0, 0, 0);
   }
 
   if (endDateParam) {
     endDate = new Date(endDateParam);
-    endDate.setUTCHours(23, 59, 59, 999); // End of the day
+    endDate.setUTCHours(23, 59, 59, 999);
   }
 
   try {
     const sales = await prisma.sale.findMany({
       where: {
-        businessId: businessId,
+        businessId: businessId, // Use validated businessId
         createdAt: {
           gte: startDate,
           lte: endDate,
@@ -55,12 +59,12 @@ export async function GET(req: NextRequest) {
       include: {
         items: {
           include: {
-            product: true, // Include product details if it's a product sale item
-            combo: { // Include combo details if it's a combo sale item
+            product: true,
+            combo: { 
               include: {
-                products: { // Include products within the combo
+                products: { 
                   include: {
-                    product: true, // Include product details for combo items
+                    product: true,
                   },
                 },
               },
@@ -69,11 +73,10 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc', // Order by most recent sales first
+        createdAt: 'desc',
       },
     });
 
-    // Convert Decimal to string for client component serialization
     const serializableSales = sales.map(sale => ({
       ...sale,
       totalAmount: sale.totalAmount.toString(),
@@ -92,17 +95,13 @@ export async function GET(req: NextRequest) {
       })),
     }));
 
-    // Aggregate by product (re-adding original logic)
     const salesByProduct: { [key: string]: { name: string; quantity: number; total: number } } = {};
     sales.forEach(sale => {
       sale.items.forEach(item => {
-        const itemName = item.product?.name || item.combo?.name || 'Desconocido'; // Use product or combo name
+        const itemName = item.product?.name || item.combo?.name || 'Desconocido';
         const itemTotal = new Decimal(item.priceAtSale).mul(item.quantity).toNumber();
-
-        // Use a unique key for product/combo to aggregate correctly
         const key = item.productId || item.comboId;
-        if (!key) return; // Skip if no product or combo ID
-
+        if (!key) return;
         if (!salesByProduct[key]) {
           salesByProduct[key] = { name: itemName, quantity: 0, total: 0 };
         }
@@ -111,12 +110,10 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    // Aggregate by payment method (re-adding original logic)
     const salesByPaymentMethod: { [key: string]: { method: string; total: number } } = {};
     sales.forEach(sale => {
       const method = sale.paymentMethod;
       const total = new Decimal(sale.totalAmount).toNumber();
-
       if (!salesByPaymentMethod[method]) {
         salesByPaymentMethod[method] = { method: method, total: 0 };
       }
@@ -127,12 +124,13 @@ export async function GET(req: NextRequest) {
     const paymentMethodsReport = Object.values(salesByPaymentMethod);
 
     return NextResponse.json({
-      sales: serializableSales, // Individual sales records
-      productsReport,          // Aggregated by product
-      paymentMethodsReport,    // Aggregated by payment method
+      sales: serializableSales,
+      productsReport,
+      paymentMethodsReport,
     });
   } catch (error) {
     console.error('Error fetching sales:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
+

@@ -1,27 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../lib/prisma';
-import { auth } from '../../../auth';
+import prisma from '@/lib/prisma';
+import { auth } from '@/auth';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
-
-  if (!session || !session.user || !session.user.id) {
+  if (!session?.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const userBusiness = await prisma.businessUser.findFirst({
-    where: { userId: session.user.id },
-    select: { businessId: true },
-  });
+  const businessId = req.nextUrl.searchParams.get('businessId');
 
-  if (!userBusiness) {
-    return NextResponse.json({ message: 'Business not found for user' }, { status: 404 });
+  if (!businessId) {
+    return NextResponse.json({ message: 'Business ID is required' }, { status: 400 });
   }
 
   try {
+    // Verify user is part of the business they are requesting data from
+    const userMembership = await prisma.businessUser.findUnique({
+      where: {
+        businessId_userId: {
+          businessId: businessId,
+          userId: session.user.id,
+        },
+        status: 'ACCEPTED', // Ensure user is an accepted member
+      },
+    });
+
+    if (!userMembership) {
+      return NextResponse.json({ message: 'Forbidden: You are not a member of this business.' }, { status: 403 });
+    }
+
+    // Fetch products for the specified business
     const products = await prisma.product.findMany({
       where: {
-        businessId: userBusiness.businessId,
+        businessId: businessId,
       },
     });
 

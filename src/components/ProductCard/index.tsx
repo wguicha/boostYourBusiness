@@ -1,7 +1,7 @@
 'use client';
 
-import { FiEdit, FiShoppingCart, FiDollarSign } from 'react-icons/fi';
-import styles from './ProductCard.module.css'; // Import CSS Module
+import { FiEdit, FiTrash2, FiShoppingCart, FiDollarSign } from 'react-icons/fi'; // Add FiTrash2
+import styles from './ProductCard.module.css';
 
 import { Product as PrismaProduct } from '@prisma/client';
 
@@ -12,67 +12,77 @@ interface Product extends Omit<PrismaProduct, 'price'> {
 interface ProductCardProps {
   product: Product;
   onEdit: (productId: string) => void;
+  onDelete: (productId: string) => void;
   onAddToCart: (product: Product) => void;
   onDirectSale: (product: Product) => void;
-  showActions?: boolean;
+  showManagementActions?: boolean; // New prop
+  showSaleActions?: boolean; // New prop
 }
 
-export default function ProductCard({ product, onEdit, onAddToCart, onDirectSale, showActions = true }: ProductCardProps) {
+export default function ProductCard({ product, onEdit, onDelete, onAddToCart, onDirectSale, showManagementActions = false, showSaleActions = false }: ProductCardProps) {
   return (
     <div className={styles.productCardContainer}>
       <div className={styles.imageWrapper}>
-        {/* Image Container */}
         <div
           className={styles.productImageFrame}
-          style={{ backgroundImage: `url(${product.imageUrl || '/placeholder.svg'})` }} // Use background-image
+          style={{ backgroundImage: `url(${product.imageUrl || '/placeholder.svg'})` }}
         >
-          {/* No Image component or img tag here */}
-          {!product.imageUrl && ( // Display "Sin Imagen" if no image
+          {!product.imageUrl && (
             <div className={styles.noImagePlaceholder}>
               <span className={styles.noImageText}>Sin Imagen</span>
             </div>
           )}
         </div>
-        <p className={styles.productPriceText}> {/* Replaced text-gray-600 */}
+        <p className={styles.productPriceText}>
           <span className={styles.priceCircle}>
             {parseFloat(product.price).toLocaleString('es-CO', { minimumFractionDigits: 0 })} €
           </span>
         </p>
 
-        {/* Edit Button */}
-        <button
-          onClick={() => onEdit(product.id)}
-          className={styles.editButton}
-        >
-          <FiEdit size={14} />
-        </button>
+        {/* Control Buttons Wrapper */}
+        {(showManagementActions) && (
+          <div className={styles.controlsWrapper}>
+            <button
+              onClick={() => onEdit(product.id)}
+              className={`${styles.controlButton} ${styles.editButton}`}
+              aria-label="Edit Product"
+            >
+              <FiEdit size={14} />
+            </button>
+            <button
+              onClick={() => onDelete(product.id)}
+              className={`${styles.controlButton} ${styles.deleteButton}`}
+              aria-label="Delete Product"
+            >
+              <FiTrash2 size={14} />
+            </button>
+          </div>
+        )}
 
-        {/* Stock Indicator */}
         <div className={styles.stockIndicator}>
           {product.quantity}
         </div>
 
-        {/* Action Buttons */}
-        {showActions && (
-          <>
+        {showSaleActions && (
+          <div className={styles.actionsWrapper}>
             <button
               onClick={() => onAddToCart(product)}
-              className={styles.addToCartButton}
+              className={`${styles.actionButton} ${styles.addToCartButton}`}
+              aria-label="Add to Cart"
             >
               <FiShoppingCart size={14} />
             </button>
             <button
               onClick={() => onDirectSale(product)}
-              className={styles.directSaleButton}
+              className={`${styles.actionButton} ${styles.directSaleButton}`}
+              aria-label="Direct Sale"
             >
               <FiDollarSign size={14} />
             </button>
-          </>
+          </div>
         )}
       </div>
 
-      {/* Product Info */}
-      {/* Product Info */}
       <div className={styles.productInfo}>
         <p className={styles.productNameText}>{product.name}</p>
       </div>
