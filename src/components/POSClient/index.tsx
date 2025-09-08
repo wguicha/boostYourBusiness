@@ -198,6 +198,35 @@ export default function POSClient() {
   const handleRecordSale = async () => {
     if (!activeBusiness) return alert('No active business selected.');
     setMessage(null);
+
+    // Client-side stock validation
+    const stockRequirements: { [productId: string]: number } = {};
+
+    for (const item of cart) {
+      if (item.type === 'product') {
+        stockRequirements[item.id] = (stockRequirements[item.id] || 0) + item.quantity;
+      } else if (item.type === 'combo') {
+        const comboDetails = combos.find(c => c.id === item.id);
+        if (comboDetails) {
+          for (const comboProduct of comboDetails.products) {
+            const productId = comboProduct.product.id;
+            const requiredQty = comboProduct.quantity * item.quantity;
+            stockRequirements[productId] = (stockRequirements[productId] || 0) + requiredQty;
+          }
+        }
+      }
+    }
+
+    for (const productId in stockRequirements) {
+      const product = products.find(p => p.id === productId);
+      const required = stockRequirements[productId];
+      if (!product || product.quantity < required) {
+        const productName = product ? product.name : 'un producto desconocido';
+        setMessage({ type: 'error', text: `Stock insuficiente para '${productName}'. Necesitas ${required} pero solo hay ${product?.quantity || 0} disponible.` });
+        return; // Stop the sale
+      }
+    }
+
     try {
       const saleItems = cart.map(item => ({ ...item, price: item.salePrice.toString() }));
       const totalAmount = cart.reduce((sum, item) => sum + item.salePrice * item.quantity, 0);
@@ -367,7 +396,7 @@ export default function POSClient() {
             <h2 className={styles.sectionTitle}>Productos</h2>
             <div className={styles.productCardGrid}>
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} onEdit={handleEditProduct} onDelete={() => {}} onAddToCart={handleAddToCartFromCard} onDirectSale={(product) => handleDirectSaleFromCard(product, 'product')} showManagementActions={false} showSaleActions={false} />
+                <ProductCard key={product.id} product={product} onEdit={handleEditProduct} onDelete={() => {}} onAddToCart={handleAddToCartFromCard} onDirectSale={(product) => handleDirectSaleFromCard(product, 'product')} showEditAction={true} showDeleteAction={false} showSaleActions={true} />
               ))}
             </div>
           </div>

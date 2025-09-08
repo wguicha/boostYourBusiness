@@ -123,10 +123,17 @@ export async function GET(req: NextRequest) {
     const productsReport = Object.values(salesByProduct);
     const paymentMethodsReport = Object.values(salesByPaymentMethod);
 
+    const reportType = searchParams.get('reportType');
+
+    if (reportType === 'summary') {
+      return NextResponse.json({
+        productsReport,
+        paymentMethodsReport,
+      });
+    }
+
     return NextResponse.json({
       sales: serializableSales,
-      productsReport,
-      paymentMethodsReport,
     });
   } catch (error) {
     console.error('Error fetching sales:', error);

@@ -23,12 +23,22 @@ export default function Header() {
   if (status !== 'authenticated') {
     return (
       <header className={`${styles.header}`}>
+        {/* Unauthenticated view for Desktop */}
         <div className={styles.desktopHeaderContainer}>
           <div className={styles.desktopBusinessName}>
             <span>Boost Your Business</span>
           </div>
           <div className={styles.desktopUserIcon}>
-            <UserDropdown />
+            <UserDropdown hideSignInLink={true} />
+          </div>
+        </div>
+        {/* Unauthenticated view for Mobile */}
+        <div className={styles.mobileHeaderContainer}>
+          <div className={styles.mobileBusinessName}>
+            <span>Boost Your Business</span>
+          </div>
+          <div className={styles.mobileUserIcon}>
+            <UserDropdown hideSignInLink={true} />
           </div>
         </div>
       </header>

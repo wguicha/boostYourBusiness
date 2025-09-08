@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './SummaryReport.module.css'; // New CSS module
+import { useBusiness } from '@/context/BusinessContext';
 
 interface ProductReport {
   name: string;
@@ -25,12 +26,17 @@ export default function SummaryReportPage() { // Renamed component
   const [report, setReport] = useState<SalesReportData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { activeBusiness, loading: businessLoading } = useBusiness();
 
   const fetchSalesReport = async () => {
+    if (!activeBusiness) return;
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({
+        businessId: activeBusiness.id,
+        reportType: 'summary', // Specify the report type
+      });
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
@@ -57,6 +63,10 @@ export default function SummaryReportPage() { // Renamed component
   // useEffect(() => {
   //   fetchSalesReport();
   // }, [startDate, endDate]); // Fetch automatically on date change
+
+  if (businessLoading) return <p>Loading business info...</p>;
+  if (!activeBusiness) return <div className={styles.container}><h1 className={styles.title}>Informe de Ventas (Resumen)</h1><p>Please select a business to view the report.</p></div>;
+
 
   return (
     <div className={styles.container}>

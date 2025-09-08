@@ -5,7 +5,11 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import styles from './UserDropdown.module.css';
 
-export default function UserDropdown() {
+interface UserDropdownProps {
+  hideSignInLink?: boolean;
+}
+
+export default function UserDropdown({ hideSignInLink = false }: UserDropdownProps) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -29,6 +33,9 @@ export default function UserDropdown() {
   }, []);
 
   if (!session) {
+    if (hideSignInLink) {
+      return null; // Don't render anything if link should be hidden
+    }
     return (
       <Link href="/auth/signin" className="bg-blue-700 hover:bg-blue-800 text-sm py-1 px-2 rounded">
         Iniciar Sesión

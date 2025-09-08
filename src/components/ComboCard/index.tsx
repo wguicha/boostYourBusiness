@@ -13,9 +13,10 @@ interface ComboCardProps {
 
 export default function ComboCard({ combo, availableQuantity, onAddToCart, onDirectSale }: ComboCardProps) {
   const price = parseFloat(combo.price);
+  const isOutOfStock = availableQuantity === 0;
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${isOutOfStock ? styles.outOfStock : ''}`}>
       <h3 className={styles.name}>{combo.name}</h3>
       <p className={styles.price}>${price.toFixed(2)}</p>
       <p className={styles.availability}>Disponible: {availableQuantity === Infinity ? 'N/A' : availableQuantity}</p>
@@ -30,14 +31,14 @@ export default function ComboCard({ combo, availableQuantity, onAddToCart, onDir
       <div className={styles.actions}>
         <button
           onClick={() => onAddToCart(combo)}
-          disabled={availableQuantity === 0}
+          disabled={isOutOfStock}
           className={styles.addToCartButton}
         >
           Añadir al Carrito
         </button>
         <button
           onClick={() => onDirectSale(combo)}
-          disabled={availableQuantity === 0}
+          disabled={isOutOfStock}
           className={styles.directSaleButton}
         >
           Venta Directa

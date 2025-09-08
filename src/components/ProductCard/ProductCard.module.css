@@ -140,3 +140,17 @@
 .deleteButton { color: #dc3545; }
 .addToCartButton { color: #1a73e8; }
 .directSaleButton { color: #1e8e3e; }
+
+.outOfStock .productImageFrame,
+.outOfStock .productInfo {
+  opacity: 0.6;
+  filter: grayscale(80%);
+}
+
+.outOfStock .productImageFrame {
+  box-shadow: 0 0 0 5px white, 0 0 0 10px #a0a0a0;
+}
+
+.outOfStock .stockIndicator {
+  background-color: #6c757d;
+}

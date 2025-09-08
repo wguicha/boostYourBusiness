@@ -17,11 +17,12 @@ interface ProductListProps {
   onDelete: (productId: string) => void;
   onAddToCart: (product: Product) => void;
   onDirectSale: (product: Product) => void;
-  showManagementActions?: boolean;
+  showEditAction?: boolean;
+  showDeleteAction?: boolean;
   showSaleActions?: boolean;
 }
 
-export default function ProductList({ products, onEdit, onDelete, onAddToCart, onDirectSale, showManagementActions, showSaleActions }: ProductListProps) {
+export default function ProductList({ products, onEdit, onDelete, onAddToCart, onDirectSale, showEditAction, showDeleteAction, showSaleActions }: ProductListProps) {
   return (
     <div className={styles.productListGrid}>
       {products.map((product) => (
@@ -32,7 +33,8 @@ export default function ProductList({ products, onEdit, onDelete, onAddToCart, o
           onDelete={onDelete}
           onAddToCart={onAddToCart}
           onDirectSale={onDirectSale}
-          showManagementActions={showManagementActions}
+          showEditAction={showEditAction}
+          showDeleteAction={showDeleteAction}
           showSaleActions={showSaleActions}
         />
       ))}

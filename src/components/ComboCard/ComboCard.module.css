@@ -91,3 +91,11 @@
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.outOfStock {
+  opacity: 0.5;
+  filter: grayscale(80%);
+  cursor: not-allowed;
+  border-color: #a0a0a0;
+}
+

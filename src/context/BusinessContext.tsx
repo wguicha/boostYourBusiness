@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { useSession } from 'next-auth/react'; // Import useSession
 import { Business, BusinessUser, Role } from '@prisma/client';
 
 // Define the structure of a business object with its users
@@ -32,15 +33,29 @@ const BusinessContext = createContext<BusinessContextType | undefined>(undefined
 
 // Create the provider component
 export const BusinessProvider = ({ children }: { children: ReactNode }) => {
+  const { data: session, status } = useSession(); // Use the session hook
   const [activeBusiness, setActiveBusiness] = useState<BusinessWithUsers | null>(null);
   const [userBusinesses, setUserBusinesses] = useState<BusinessWithUsers[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchBusinesses = async () => {
+  const fetchBusinesses = useCallback(async () => {
+    // Only fetch if the user is authenticated
+    if (status !== 'authenticated') {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('/api/businesses');
       if (!response.ok) {
+        // It's common to get 401s here if the session is not yet available, so we can handle it gracefully
+        if (response.status === 401) {
+          console.log('Not authorized to fetch businesses, waiting for session.');
+          setUserBusinesses([]);
+          setActiveBusiness(null);
+          return; // Exit early
+        }
         throw new Error('Failed to fetch businesses');
       }
       const businesses: BusinessWithUsers[] = await response.json();
@@ -59,11 +74,20 @@ export const BusinessProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, setLoading, setUserBusinesses, setActiveBusiness]);
 
   useEffect(() => {
-    fetchBusinesses();
-  }, []);
+    // The dependency array now includes session status.
+    // This effect will re-run when the user logs in or out.
+    if (status === 'authenticated') {
+      fetchBusinesses();
+    } else {
+      // If user is not authenticated, clear the business data
+      setUserBusinesses([]);
+      setActiveBusiness(null);
+      setLoading(false);
+    }
+  }, [status, fetchBusinesses]);
 
   const value = {
     activeBusiness,

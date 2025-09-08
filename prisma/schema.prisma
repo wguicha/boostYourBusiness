@@ -181,6 +181,8 @@ model User {
   password      String?
   emailVerified DateTime?
   image         String?
+  passwordResetToken          String?
+  passwordResetTokenExpires   DateTime?
 
   accounts Account[]
   sessions Session[]

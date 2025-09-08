@@ -125,7 +125,8 @@ export default function ProductsPage() {
             onDelete={handleDeleteProduct} // Pass the delete handler
             onAddToCart={() => {}} // Dummy function
             onDirectSale={() => {}} // Dummy function
-            showManagementActions={true}
+            showEditAction={true}
+            showDeleteAction={true}
             showSaleActions={false}
           />
         )}

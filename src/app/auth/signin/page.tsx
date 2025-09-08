@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './signin.module.css'; // Import CSS module
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -21,50 +22,54 @@ export default function SignInPage() {
     });
 
     if (result?.error) {
-      setError(result.error);
+      // The error message from the server is intentionally generic for security.
+      // We display a user-friendly message instead of the technical error code.
+      setError('Email o contraseña incorrectos. Por favor, inténtalo de nuevo.');
     } else {
       router.push('/pos'); // Redirect to POS page on successful login
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h2 className="mb-6 text-center text-2xl font-bold">Iniciar Sesión</h2>
+    <div className={styles.container}>
+      <div className={styles.formWrapper}>
         <form onSubmit={handleSubmit}>
-          {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-          <div className="mb-4">
-            <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">Email:</label>
+          {error && <p className={styles.error}>{error}</p>}
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}>Email:</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className={styles.input}
               required
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">Contraseña:</label>
+          <div className={styles.formGroupLast}>
+            <label htmlFor="password" className={styles.label}>Contraseña:</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className={styles.input}
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-500 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className={styles.button}
           >
             Iniciar Sesión
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          ¿No tienes cuenta? <a href="/auth/signup" className="text-blue-500 hover:underline">Regístrate aquí</a>
+        <p className={styles.linkText}>
+          ¿No tienes cuenta? <a href="/auth/signup" className={styles.link}>Regístrate aquí</a>
         </p>
+        {/* <p className={`${styles.linkText} mt-2`}>
+          <a href="/auth/forgot-password" className={styles.link}>¿Olvidaste tu contraseña?</a>
+        </p> */}
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ export const authConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Por favor, ingresa email y contraseña.");
         }
 
         const user = await prisma.user.findUnique({
@@ -30,13 +30,15 @@ export const authConfig = {
         });
 
         if (!user || !user.password) {
-          return null;
+          // For security, we don't want to reveal if the user exists or not.
+          // A generic message is better.
+          throw new Error("Usuario no encontrado o contraseña incorrecta.");
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
         if (!isValid) {
-          return null;
+          throw new Error("Usuario no encontrado o contraseña incorrecta.");
         }
 
         return {

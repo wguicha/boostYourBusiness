@@ -11,13 +11,16 @@ interface ProductCardProps {
   onDelete: (productId: string) => void;
   onAddToCart: (product: Product) => void;
   onDirectSale: (product: Product) => void;
-  showManagementActions?: boolean; // New prop
-  showSaleActions?: boolean; // New prop
+  showEditAction?: boolean;
+  showDeleteAction?: boolean;
+  showSaleActions?: boolean;
 }
 
-export default function ProductCard({ product, onEdit, onDelete, onAddToCart, onDirectSale, showManagementActions = false, showSaleActions = false }: ProductCardProps) {
+export default function ProductCard({ product, onEdit, onDelete, onAddToCart, onDirectSale, showEditAction = false, showDeleteAction = false, showSaleActions = false }: ProductCardProps) {
+  const isOutOfStock = product.quantity === 0;
+
   return (
-    <div className={styles.productCardContainer}>
+    <div className={`${styles.productCardContainer} ${isOutOfStock ? styles.outOfStock : ''}`}>
       <div className={styles.imageWrapper}>
         <div
           className={styles.productImageFrame}
@@ -36,8 +39,8 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
         </p>
 
         {/* Control Buttons Wrapper */}
-        {(showManagementActions) && (
-          <div className={styles.controlsWrapper}>
+        <div className={styles.controlsWrapper}>
+          {showEditAction && (
             <button
               onClick={() => onEdit(product.id)}
               className={`${styles.controlButton} ${styles.editButton}`}
@@ -45,6 +48,8 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
             >
               <FiEdit size={14} />
             </button>
+          )}
+          {showDeleteAction && (
             <button
               onClick={() => onDelete(product.id)}
               className={`${styles.controlButton} ${styles.deleteButton}`}
@@ -52,8 +57,8 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
             >
               <FiTrash2 size={14} />
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className={styles.stockIndicator}>
           {product.quantity}
@@ -65,6 +70,7 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
               onClick={() => onAddToCart(product)}
               className={`${styles.actionButton} ${styles.addToCartButton}`}
               aria-label="Add to Cart"
+              disabled={isOutOfStock}
             >
               <FiShoppingCart size={14} />
             </button>
@@ -72,6 +78,7 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
               onClick={() => onDirectSale(product)}
               className={`${styles.actionButton} ${styles.directSaleButton}`}
               aria-label="Direct Sale"
+              disabled={isOutOfStock}
             >
               <FiDollarSign size={14} />
             </button>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/app/auth/actions';
 import { signIn } from 'next-auth/react';
+import styles from './signup.module.css'; // Import CSS module
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -39,45 +40,45 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h2 className="mb-6 text-center text-2xl font-bold">Registrarse</h2>
+    <div className={styles.container}>
+      <div className={styles.formWrapper}>
+        <h2 className={styles.title}>Registrarse</h2>
         <form onSubmit={handleSubmit}>
-          {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-          {success && <p className="mb-4 text-center text-green-500">{success}</p>}
-          <div className="mb-4">
-            <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">Email:</label>
+          {error && <p className={styles.messageError}>{error}</p>}
+          {success && <p className={styles.messageSuccess}>{success}</p>}
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}>Email:</label>
             <input
               type="email"
               id="email"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className={styles.input}
               required
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">Contraseña:</label>
+          <div className={styles.formGroupLast}>
+            <label htmlFor="password" className={styles.label}>Contraseña:</label>
             <input
               type="password"
               id="password"
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              className={styles.input}
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-500 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className={styles.button}
           >
             Registrarse
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          ¿Ya tienes cuenta? <a href="/auth/signin" className="text-blue-500 hover:underline">Inicia sesión aquí</a>
+        <p className={styles.linkText}>
+          ¿Ya tienes cuenta? <a href="/auth/signin" className={styles.link}>Inicia sesión aquí</a>
         </p>
       </div>
     </div>
