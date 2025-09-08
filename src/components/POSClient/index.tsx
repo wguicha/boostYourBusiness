@@ -11,12 +11,11 @@ import EditProductForm from '@/components/EditProductForm';
 import CartIcon from '@/components/CartIcon';
 import Image from 'next/image';
 
+import { Product, Combo } from '@/types/shared';
+
 import { ProductType } from '@prisma/client';
 
 // Type Definitions
-interface Product { id: string; name: string; price: string; quantity: number; imageUrl: string | null; type: ProductType; businessId: string; createdAt: Date; updatedAt: Date; description: string | null; }
-interface ComboProductItem { product: Product; quantity: number; }
-interface Combo { id: string; name: string; price: string; products: ComboProductItem[]; type: 'combo'; }
 interface CartItem { id: string; name: string; price: string; quantity: number; salePrice: number; type: 'product' | 'combo'; }
 
 const paymentMethodsConfig = [
@@ -109,6 +108,7 @@ export default function POSClient() {
             updatedAt: new Date(cp.product.updatedAt),
           },
         })),
+        type: 'combo',
       }));
 
       setProducts(processedProducts);
@@ -367,7 +367,7 @@ export default function POSClient() {
             <h2 className={styles.sectionTitle}>Productos</h2>
             <div className={styles.productCardGrid}>
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} onEdit={handleEditProduct} onDelete={() => {}} onAddToCart={handleAddToCartFromCard} onDirectSale={handleDirectSaleFromCard} showActions={false} />
+                <ProductCard key={product.id} product={product} onEdit={handleEditProduct} onDelete={() => {}} onAddToCart={handleAddToCartFromCard} onDirectSale={(product) => handleDirectSaleFromCard(product, 'product')} showManagementActions={false} showSaleActions={false} />
               ))}
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function POSClient() {
                   return Math.min(minQty, Math.floor(productInStock.quantity / cp.quantity));
                 }, Infinity);
                 return (
-                  <ComboCard key={combo.id} combo={combo} availableQuantity={availableComboQuantity === Infinity ? 0 : availableComboQuantity} onAddToCart={handleAddToCartComboFromCard} onDirectSale={handleDirectSaleFromCard} />
+                  <ComboCard key={combo.id} combo={combo} availableQuantity={availableComboQuantity === Infinity ? 0 : availableComboQuantity} onAddToCart={handleAddToCartComboFromCard} onDirectSale={(combo) => handleDirectSaleFromCard(combo, 'combo')} />
                 );
               })}
             </div>

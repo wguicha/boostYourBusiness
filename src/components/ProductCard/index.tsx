@@ -3,11 +3,7 @@
 import { FiEdit, FiTrash2, FiShoppingCart, FiDollarSign } from 'react-icons/fi'; // Add FiTrash2
 import styles from './ProductCard.module.css';
 
-import { Product as PrismaProduct } from '@prisma/client';
-
-interface Product extends Omit<PrismaProduct, 'price'> {
-  price: string;
-}
+import { Product, Combo } from '@/types/shared';
 
 interface ProductCardProps {
   product: Product;

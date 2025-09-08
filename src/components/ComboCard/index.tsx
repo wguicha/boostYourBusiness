@@ -2,24 +2,7 @@
 
 import React from 'react';
 import styles from './ComboCard.module.css';
-
-interface Product {
-  id: string;
-  name: string;
-  quantity: number; // Available stock
-}
-
-interface ComboProductItem {
-  product: Product;
-  quantity: number; // Quantity of this product in the combo
-}
-
-interface Combo {
-  id: string;
-  name: string;
-  price: string; // Price as string from client
-  products: ComboProductItem[];
-}
+import { Combo } from '@/types/shared';
 
 interface ComboCardProps {
   combo: Combo;
