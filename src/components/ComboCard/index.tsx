@@ -67,6 +67,15 @@ export default function ComboCard({ combo, availableQuantity, onAddToCart, onDir
             />
           ))}
         </div>
+        <div className={styles.comboDescription}>
+          <ul className={styles.productList}>
+            {combo.products.map((cp, index) => (
+              <li key={index} className={styles.productItem}>
+                {`${cp.quantity}x ${cp.product.name.substring(0, 10)}${cp.product.name.length > 10 ? '...' : ''}`}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

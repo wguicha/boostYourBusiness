@@ -23,15 +23,28 @@
 .comboCardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
-  gap: 24px;
+  gap: 72px; /* Increased gap */
   margin-top: 16px; /* Space below the section title */
 }
 
-@media (max-width: 500px) {
-  .productCardGrid,
-  .comboCardGrid {
+@media (max-width: 630px) {
+  .productCardGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 32px; /* A reasonable gap */
+  }
+  .comboCardGrid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .productCardGrid {
+    gap: 16px; /* Further reduce gap */
+  }
+  .comboCardGrid {
+    grid-template-columns: 1fr;
+    gap: 48px; /* Increased gap for single column */
   }
 }
 
@@ -122,7 +135,7 @@
 
 .productGridContainer {
   flex: 1;
-  padding: 5px 16px 16px;
+  padding: 5px 32px 16px; /* Increased horizontal padding */
   overflow-y: auto;
 }
 

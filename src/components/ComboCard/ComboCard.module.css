@@ -1,20 +1,19 @@
 /* Main container for the combo card */
 .comboCardContainer {
-  grid-column: span 2; /* Make the card span two columns */
-  max-width: 350px; /* Constrain the width */
-  justify-self: center; /* Center the card in its grid slot */
   position: relative;
-  background-color: #fff;
+  background-color: transparent;
+  /* Use body background */
   border-radius: 8px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 200px; /* Adjusted height */
-  /* Copied from ProductCard for consistency */
-  box-shadow:
-    0 0 0 5px white,
-    0 0 0 10px #FFC107;
+  width: 220px;
+  /* Fixed width */
+  height: 200px;
+  /* Fixed height */
+  box-shadow: 0 0 0 5px #FFC107;
+  /* Simplified shadow */
 }
 
 /* Info section for name and thumbnails */
@@ -25,7 +24,8 @@
 .comboName {
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 0.5rem; /* Reduced margin */
+  margin-bottom: 0.5rem;
+  /* Reduced margin */
 }
 
 /* Container for product thumbnails */
@@ -34,19 +34,46 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: 1rem;    /* Adjusted margin */
-  margin-bottom: 1rem; /* Adjusted margin */
-  flex-wrap: wrap; /* Allow thumbnails to wrap */
+  margin-top: 1rem;
+  /* Adjusted margin */
+  margin-bottom: 1rem;
+  /* Adjusted margin */
+  flex-wrap: wrap;
+  /* Allow thumbnails to wrap */
 }
 
 .thumbnail {
-  width: 50px;  /* Increased size */
-  height: 50px; /* Increased size */
+  width: 50px;
+  /* Increased size */
+  height: 50px;
+  /* Increased size */
   border-radius: 50%;
   background-size: cover;
   background-position: center;
   border: 2px solid white;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.comboDescription {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.productList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.productItem {
+  display: inline;
+}
+
+.productItem:not(:last-child)::after {
+  content: ' + ';
+  margin: 0 4px;
 }
 
 /* Copied from ProductCard.module.css for consistency */
@@ -76,7 +103,8 @@
   right: -20px;
   width: 40px;
   height: 40px;
-  background-color: #1e8e3e; /* Green for combos */
+  background-color: #1e8e3e;
+  /* Green for combos */
   color: white;
   font-size: 0.875rem;
   font-weight: bold;
@@ -113,13 +141,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease-in-out;
 }
 
 .actionButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .addToCartButton {
