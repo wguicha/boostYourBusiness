@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
 import React from 'react';
 import styles from './ComboCard.module.css';
 import { Combo } from '@/types/shared';
+import { FiShoppingCart, FiDollarSign } from 'react-icons/fi';
 
 interface ComboCardProps {
   combo: Combo;
@@ -16,33 +17,56 @@ export default function ComboCard({ combo, availableQuantity, onAddToCart, onDir
   const isOutOfStock = availableQuantity === 0;
 
   return (
-    <div className={`${styles.card} ${isOutOfStock ? styles.outOfStock : ''}`}>
-      <h3 className={styles.name}>{combo.name}</h3>
-      <p className={styles.price}>${price.toFixed(2)}</p>
-      <p className={styles.availability}>Disponible: {availableQuantity === Infinity ? 'N/A' : availableQuantity}</p>
-      <div className={styles.content}>
-        <h4>Contenido:</h4>
-        <ul>
-          {combo.products.map(cp => (
-            <li key={cp.product.id}>{cp.quantity} x {cp.product.name}</li>
-          ))}
-        </ul>
+    <div className={`${styles.comboCardContainer} ${isOutOfStock ? styles.outOfStock : ''}`}>
+      {/* Price Circle (left) */}
+      <div className={styles.priceText}>
+        <span className={styles.priceCircle}>
+          {price.toLocaleString('es-CO', { minimumFractionDigits: 0 })} €
+        </span>
       </div>
-      <div className={styles.actions}>
+
+      {/* Stock Indicator (top-right) */}
+      <div className={styles.stockIndicator}>
+        {availableQuantity === Infinity ? '∞' : availableQuantity}
+      </div>
+
+      {/* Add to Cart Button (bottom-right) */}
+      <div className={styles.actionsWrapper}>
         <button
           onClick={() => onAddToCart(combo)}
           disabled={isOutOfStock}
-          className={styles.addToCartButton}
+          className={`${styles.actionButton} ${styles.addToCartButton}`}
+          aria-label="Add to Cart"
         >
-          Añadir al Carrito
+          <FiShoppingCart size={14} />
         </button>
+      </div>
+
+      {/* Direct Sale Button (right) */}
+      <div className={styles.directSaleButtonWrapper}>
         <button
           onClick={() => onDirectSale(combo)}
           disabled={isOutOfStock}
-          className={styles.directSaleButton}
+          className={`${styles.actionButton} ${styles.directSaleButton}`}
+          aria-label="Direct Sale"
         >
-          Venta Directa
+          <FiDollarSign size={14} />
         </button>
+      </div>
+
+      {/* Main Content */}
+      <div className={styles.comboInfo}>
+        <h3 className={styles.comboName}>{combo.name}</h3>
+        <div className={styles.thumbnailsContainer}>
+          {combo.products.map(cp => (
+            <div
+              key={cp.product.id}
+              className={styles.thumbnail}
+              style={{ backgroundImage: `url(${cp.product.imageUrl || '/placeholder.svg'})` }}
+              title={`${cp.quantity} x ${cp.product.name}`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

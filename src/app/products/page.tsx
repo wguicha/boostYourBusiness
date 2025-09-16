@@ -7,6 +7,7 @@ import AddProductForm from "@/components/AddProductForm";
 import EditProductForm from "@/components/EditProductForm";
 import ProductList from "@/components/ProductList";
 import Modal from "@/components/Modal";
+import styles from './Products.module.css';
 import { Product as PrismaProduct } from '@prisma/client';
 
 interface Product extends Omit<PrismaProduct, 'price'> {
@@ -115,7 +116,7 @@ export default function ProductsPage() {
       </div>
       
       <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Lista de Productos</h2>
+        <h2 className={`text-xl font-semibold ${styles.listTitle}`}>Lista de Productos</h2>
         {products.length === 0 ? (
           <p className="text-gray-500">No hay productos registrados para este negocio.</p>
         ) : (

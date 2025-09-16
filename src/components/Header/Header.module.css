@@ -1,19 +1,18 @@
+/* Base Header Styles */
 .header {
-  background-color: #87CEEB;
-  color: #727272;
+  background-color: #2c3e50; /* Dark Slate Blue */
+  color: #ecf0f1; /* Light Off-White */
   width: 100%;
   position: sticky;
   top: 0;
-  z-index: 1000; /* Ensure it stays on top of other content */
+  z-index: 1000;
   margin: 0;
-  padding: 16px;
-  min-height: 60px; /* Ensure enough height */
-  overflow: visible; /* Prevent clipping */
-  box-sizing: border-box; /* Include padding in width */
-}
-
-.header .container {
-  overflow: visible; /* Prevent clipping */
+  padding: 0 24px; /* Adjusted padding */
+  min-height: 64px; /* Slightly taller */
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #34495e; /* Subtle border */
+  box-sizing: border-box;
 }
 
 .header ul {
@@ -23,73 +22,55 @@
 }
 
 .header a {
+  color: #ecf0f1; /* Light text for links */
   text-decoration: none;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  padding: 8px 12px;
+  border-radius: 4px;
 }
 
-.menuContainer {
-  display: flex;
-  align-items: center;
+/* Add hover effect for all links in the header */
+.header a:hover {
+  background-color: #34495e; /* Slightly lighter dark shade on hover */
 }
 
-.mobileMenuButton {
-  display: none; /* Hidden by default on larger screens */
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  z-index: 1001; /* Above menu */
+/* Active Link Style */
+.activeLink {
+  color: #3498db !important; /* Bright Blue for active link */
+  font-weight: bold;
 }
 
-.hamburgerLine {
-  display: block;
-  width: 25px;
-  height: 3px;
-  background-color: #FFC107;
-  margin: 5px 0;
-  transition: all 0.3s ease-in-out;
-}
-
-.navMenu {
-  display: flex; /* Default for larger screens */
-}
+/* --- Layout Containers --- */
 
 /* Desktop Layout */
 .desktopHeaderContainer {
-  display: none; /* Hidden by default, shown on desktop */
+  display: none;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px; /* Example max width for content */
-  margin: 0 auto; /* Center content */
-}
-
-.desktopMenuNav {
-  flex-grow: 0;
+  max-width: 1400px; /* Wider max-width */
+  margin: 0 auto;
 }
 
 .desktopMenuNav ul {
   display: flex;
-  gap: 20px; /* Adjust spacing as needed */
+  gap: 16px;
 }
 
 .desktopBusinessName {
   flex-grow: 1;
   text-align: center;
-}
-
-.desktopUserIcon {
-  flex-grow: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 /* Mobile Layout */
 .mobileHeaderContainer {
-  display: none; /* Hidden by default, shown on mobile */
+  display: none;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
-  max-width: 1200px; /* Example max width for content */
-  margin: 0 auto; /* Center content */
 }
 
 .mobileTopRow {
@@ -102,61 +83,87 @@
 .mobileBusinessName {
   flex-grow: 1;
   text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-.mobileUserIcon {
-  /* No specific styles needed here, UserDropdown handles its own */
+/* --- Mobile Menu Specifics --- */
+
+.menuContainer {
+  display: flex;
+  align-items: center;
 }
 
-/* Media Queries */
-@media (min-width: 769px) { /* Desktop styles */
+.mobileMenuButton {
+  display: none; /* Hidden by default */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1001;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background-color: #ecf0f1; /* Match text color */
+  margin: 5px 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.navMenu {
+  display: none;
+  list-style: none;
+  padding: 10px 0;
+  margin: 0;
+  flex-direction: column;
+  position: absolute;
+  top: 64px; /* Position below header */
+  left: 0;
+  width: 100%;
+  background-color: #2c3e50; /* Match header background */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border-top: 1px solid #34495e;
+}
+
+.navMenuOpen {
+  display: flex;
+}
+
+.navMenu li {
+  width: 100%;
+  text-align: center;
+}
+
+.navMenu li a {
+  display: block;
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --- Media Queries --- */
+
+/* Desktop styles */
+@media (min-width: 769px) {
   .desktopHeaderContainer {
-    display: flex; /* Show desktop layout */
+    display: flex;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
   }
   .mobileHeaderContainer {
-    display: none; /* Hide mobile layout */
-  }
-}
-
-@media (max-width: 768px) { /* Mobile styles */
-  .desktopHeaderContainer {
-    display: none; /* Hide desktop layout */
-  }
-  .mobileHeaderContainer {
-    display: flex; /* Show mobile layout */
+    display: flex;
   }
   .mobileMenuButton {
-    display: block; /* Show on small screens */
-  }
-  .navMenu {
-    display: none; /* Hidden by default on small screens */
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: auto;
-    width: max-content;
-    background-color: #87CEEB; /* Same as header background */
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
-
-  .navMenuOpen {
-    display: flex; /* Show when open */
-  }
-
-  .navMenu li {
-    width: 100%;
-    text-align: left;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  .navMenu li a {
     display: block;
-    padding: 10px;
+  }
+  .desktopHeaderContainer {
+    display: none;
   }
 }
-

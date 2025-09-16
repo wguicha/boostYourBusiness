@@ -1,30 +1,14 @@
-.productImageFrame {
-  width: 150px; /* Adjust as needed */
-  height: 150px; /* Adjust as needed */
-  border-radius: 50%;
-  overflow: hidden;
-  position: relative;
-  margin: 0 auto 16px auto; /* Center and add bottom margin */
-  box-shadow:
-    0 0 0 5px yellow, /* Yellow border */
-    0 0 0 10px white; /* White border */
-}
-
-.productImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .productListGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
 }
 
-@media (max-width: 768px) {
+/* On smaller screens (like mobile phones), force 2 columns */
+@media (max-width: 500px) {
   .productListGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px; /* Slightly smaller gap for smaller screens */
   }
 }
 
@@ -61,15 +45,6 @@
 .productStock {
   font-size: 0.875rem; /* text-sm */
 }
-
-
-.container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
 
 .editButton {
   background-color: #007bff;

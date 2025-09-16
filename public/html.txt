@@ -2,16 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import styles from './Header.module.css';
 import UserDropdown from '@/components/UserDropdown/index';
-import BusinessSwitcher from '@/components/BusinessSwitcher/index';
+import BusinessSwitcher from '@/components/BusinessSwitcher/index'; // Import the new component
 
 export default function Header() {
   const { status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const pathname = usePathname();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -54,11 +52,11 @@ export default function Header() {
         {/* Left: Desktop Menu */}
         <nav className={styles.desktopMenuNav}>
           <ul>
-            <li><Link href="/pos" className={pathname === '/pos' ? styles.activeLink : ''}>POS</Link></li>
-            <li><Link href="/products" className={pathname === '/products' ? styles.activeLink : ''}>Productos</Link></li>
-            <li><Link href="/combos" className={pathname === '/combos' ? styles.activeLink : ''}>Combos</Link></li>
-            <li><Link href="/sales-report" className={pathname === '/sales-report' ? styles.activeLink : ''}>Ventas</Link></li>
-            <li><Link href="/summary-report" className={pathname === '/summary-report' ? styles.activeLink : ''}>Reportes</Link></li>
+            <li><Link href="/pos">POS</Link></li>
+            <li><Link href="/products">Productos</Link></li>
+            <li><Link href="/combos">Combos</Link></li>
+            <li><Link href="/sales-report">Ventas</Link></li>
+            <li><Link href="/summary-report">Reportes</Link></li>
           </ul>
         </nav>
 
@@ -100,14 +98,16 @@ export default function Header() {
         {/* Collapsible Menu (only visible on mobile when open) */}
         <nav className={`${styles.navMenu} ${isMenuOpen ? styles.navMenuOpen : ''}`}>
           <ul>
-            <li><Link href="/pos" onClick={closeMenu} className={pathname === '/pos' ? styles.activeLink : ''}>POS</Link></li>
-            <li><Link href="/products" onClick={closeMenu} className={pathname === '/products' ? styles.activeLink : ''}>Productos</Link></li>
-            <li><Link href="/combos" onClick={closeMenu} className={pathname === '/combos' ? styles.activeLink : ''}>Combos</Link></li>
-            <li><Link href="/sales-report" onClick={closeMenu} className={pathname === '/sales-report' ? styles.activeLink : ''}>Ventas</Link></li>
-            <li><Link href="/summary-report" onClick={closeMenu} className={pathname === '/summary-report' ? styles.activeLink : ''}>Reportes</Link></li>
+            <li><Link href="/pos" onClick={closeMenu}>POS</Link></li>
+            <li><Link href="/products" onClick={closeMenu}>Productos</Link></li>
+            <li><Link href="/combos" onClick={closeMenu}>Combos</Link></li>
+            <li><Link href="/sales-report" onClick={closeMenu}>Ventas</Link></li>
+            <li><Link href="/summary-report" onClick={closeMenu}>Reportes</Link></li>
           </ul>
         </nav>
       </div>
     </header>
   );
 }
+
+

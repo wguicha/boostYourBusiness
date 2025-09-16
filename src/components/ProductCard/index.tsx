@@ -74,6 +74,11 @@ export default function ProductCard({ product, onEdit, onDelete, onAddToCart, on
             >
               <FiShoppingCart size={14} />
             </button>
+          </div>
+        )}
+
+        {showSaleActions && (
+          <div className={styles.directSaleButtonWrapper}>
             <button
               onClick={() => onDirectSale(product)}
               className={`${styles.actionButton} ${styles.directSaleButton}`}

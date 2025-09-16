@@ -22,16 +22,23 @@
 .productCardGrid,
 .comboCardGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Force 2 columns */
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
+  gap: 24px;
   margin-top: 16px; /* Space below the section title */
+}
+
+@media (max-width: 500px) {
+  .productCardGrid,
+  .comboCardGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
 }
 
 .sectionTitle {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 16px; /* Keep existing margin-bottom */
-  /* No need for grid-column: 1 / -1; here if parent is flex and takes full width */
+  margin-bottom: 24px; /* Increased space */
 }
 
 .productCard {
@@ -119,11 +126,7 @@
   overflow-y: auto;
 }
 
-.sectionTitle {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 16px;
-}
+
 
 .imageContainer {
   width: 100%;
