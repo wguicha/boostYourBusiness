@@ -23,7 +23,7 @@
 .comboCardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
-  gap: 72px; /* Increased gap */
+  gap: 24px; /* Increased gap */
   margin-top: 16px; /* Space below the section title */
 }
 
@@ -55,7 +55,7 @@
 }
 
 .productCard {
-  border: 1px solid #ccc;
+  border: 1px solid #e0e0e0;
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

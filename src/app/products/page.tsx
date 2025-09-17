@@ -109,7 +109,7 @@ export default function ProductsPage() {
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
         <button
           onClick={handleOpenAddModal}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          className="btn btn-green"
         >
           Agregar Producto
         </button>
